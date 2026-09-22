@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import { isNotFoundError } from '../../../shared/api/errors'
 import { getOrderById } from '../api/orders'
 import type { OrderResponse } from '../types'
+import { OrderStatusBadge } from '../components/OrderStatusBadge'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
@@ -57,7 +58,7 @@ function OrderDetails({ id }: { id: number }) {
   return <>
     <p className="text-xs font-bold tracking-[2px] text-[#436b5e]">TV STORE / ĐƠN HÀNG</p>
     <h1 className="mt-3 text-3xl font-bold sm:text-5xl">Đơn hàng #{order.id}</h1>
-    <p className="mt-5 text-[#52645e]">{dateTime.format(new Date(order.createdAt))}</p>
+    <div className="mt-5 flex flex-wrap items-center gap-3"><OrderStatusBadge status={order.status} /><span className="text-[#52645e]">{dateTime.format(new Date(order.createdAt))}</span></div>
     <section className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-6">
       <h2 className="text-xl font-semibold">Chi tiết đơn hàng</h2>
       <ul className="mt-5 divide-y divide-[#e1e5e2]">

@@ -43,6 +43,7 @@ public class OrdersController : ControllerBase
             {
                 Id = order.Id,
                 CreatedAt = order.CreatedAt,
+                Status = order.Status,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -81,6 +82,7 @@ public class OrdersController : ControllerBase
             {
                 Id = order.Id,
                 CreatedAt = order.CreatedAt,
+                Status = order.Status,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -176,6 +178,7 @@ public class OrdersController : ControllerBase
         {
             Id = order.Id,
             CreatedAt = order.CreatedAt,
+            Status = order.Status,
             TotalAmount = order.TotalAmount,
             Items = order.Items.Select(item => new OrderItemResponse
             {

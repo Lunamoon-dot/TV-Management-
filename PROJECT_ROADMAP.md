@@ -119,3 +119,7 @@ Customer đã đặt hàng được từ `/cart`: React gửi productId/quantity
 ## Tiến độ Customer Orders — bài24
 
 Customer có lịch sử `/orders` và chi tiết `/orders/{id}` tải từ SQL, có phân trang và hoạt động sau refresh. Backend lấy customer từ cookie, không nhận customerId từ client; query luôn lọc quyền sở hữu và trả 404 cho ID của người khác. Integration test bằng hai tài khoản đã xác nhận cách ly dữ liệu. Tiếp theo nên bổ sung trạng thái đơn hàng và thiết kế luồng Admin xử lý đơn, sau đó Customer theo dõi trạng thái.
+
+## Tiến độ Order Status — bài25
+
+Order có trạng thái lưu dạng chuỗi: Pending, Confirmed, Shipped, Completed, Cancelled. Đơn mới và dữ liệu cũ đều bắt đầu Pending; API trả chuỗi enum và Customer thấy badge tiếng Việt trong lịch sử/chi tiết. Chưa có endpoint đổi trạng thái. Bước tiếp theo xây Admin Orders và giới hạn các transition hợp lệ.

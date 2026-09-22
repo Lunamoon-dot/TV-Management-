@@ -34,15 +34,15 @@ try {
     $csrf = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $session1).token
     $created = Invoke-RestMethod "$BaseUrl/api/orders" -WebSession $session1 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$csrf } -Body (@{ items=@(@{ productId=$productId; quantity=1 }) } | ConvertTo-Json -Depth 4)
     $orderId = $created.id
-    if ($orderId -le 0) { throw 'Order was not created.' }
+    if ($orderId -le 0 -or $created.status -ne 'Pending') { throw 'Order was not created with Pending status.' }
     Write-Output "PASS: owner created order #$orderId"
 
     $history = Invoke-RestMethod "$BaseUrl/api/orders?page=1&pageSize=10" -WebSession $session1
-    if ($history.totalCount -ne 1 -or $history.items[0].id -ne $orderId) { throw 'Owner history does not contain the created order.' }
+    if ($history.totalCount -ne 1 -or $history.items[0].id -ne $orderId -or $history.items[0].status -ne 'Pending') { throw 'Owner history does not contain the Pending order.' }
     Write-Output 'PASS: owner history contains order'
 
     $details = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $session1
-    if ($details.id -ne $orderId -or $details.items[0].productId -ne $productId) { throw 'Owner detail response is incorrect.' }
+    if ($details.id -ne $orderId -or $details.status -ne 'Pending' -or $details.items[0].productId -ne $productId) { throw 'Owner detail response is incorrect.' }
     Write-Output 'PASS: owner can read order detail'
 
     Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId" -WebSession $session2 -SkipHttpErrorCheck) 404 'other customer cannot read order'

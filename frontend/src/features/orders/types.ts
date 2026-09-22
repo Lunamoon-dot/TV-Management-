@@ -17,9 +17,12 @@ export interface OrderItemResponse {
 export interface OrderResponse {
   id: number
   createdAt: string
+  status: OrderStatus
   totalAmount: number
   items: OrderItemResponse[]
 }
+
+export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Completed' | 'Cancelled'
 
 export interface OrderPageResponse {
   items: OrderResponse[]

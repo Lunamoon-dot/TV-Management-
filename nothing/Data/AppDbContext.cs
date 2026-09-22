@@ -52,6 +52,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .Property(order => order.TotalAmount)
             .HasPrecision(18, 2);
 
+        modelBuilder.Entity<Order>()
+            .Property(order => order.Status)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .IsRequired();
+
         modelBuilder.Entity<OrderItem>()
             .HasOne(item => item.Order)
             .WithMany(order => order.Items)
