@@ -12,6 +12,10 @@ export const registerSchema = loginSchema.extend({
     .regex(/[A-Z]/, 'Cần ít nhất một chữ hoa.')
     .regex(/[0-9]/, 'Cần ít nhất một chữ số.')
     .regex(/[^a-zA-Z0-9]/, 'Cần ít nhất một ký tự đặc biệt.'),
-})
+  confirmPassword: z.string().min(1, 'Vui lòng nhập lại mật khẩu.'),
+}).refine(data => data.password === data.confirmPassword, {
+  message: 'Mật khẩu nhập lại không khớp.',
+  path: ['confirmPassword'],
+}).transform(data => ({ email: data.email, password: data.password }))
 
 export type AuthRequest = z.output<typeof loginSchema>

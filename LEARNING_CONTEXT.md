@@ -133,6 +133,8 @@ Ngày 22/09/2026: bài 23 tách Customer/Admin UI: thêm nested routes với `Cu
 
 Ngày 22/09/2026: bài 24 Customer order history: thêm `GET /api/orders` phân trang và `GET /api/orders/{id}`. Cả hai lấy userId từ cookie và lọc CustomerId ngay trong EF query; đơn không có hoặc của user khác đều 404. React thêm RequireAuthenticated, `/orders`, `/orders/:id`; trang chi tiết tự tải API nên refresh được, CartPage chuyển thẳng tới URL đơn. Backend build 0 warning/error; frontend lint/build và 38 test đạt. Integration test hai account xác nhận anonymous 401, owner đọc được, user khác 404/lịch sử rỗng; dữ liệu test đã dọn và stock khôi phục. Xem `lessons/24-customer-order-history.md` và `tests/order-ownership.ps1`.
 
+Ngày 22/09/2026: form đăng ký thêm `confirmPassword`. Zod yêu cầu hai lần nhập khớp và gắn lỗi vào ô xác nhận; transform loại confirmPassword trước khi gọi API nên backend vẫn chỉ nhận email/password. Form đăng nhập không có trường xác nhận. Bổ sung test mismatch và kiểm tra request output không chứa confirmPassword.
+
 Bài 9: frontend có Trang trước/Trang sau, Axios params page động/pageSize=2 để thực hành trên 3 TV. Store requestedPage giữ trang cho retry lỗi; chưa persist/đồng bộ URL. Backend không đổi. Build/lint và 5 test store đạt. Hướng dẫn lessons/09-react-pagination.md.
 
 Bài 10 đã thêm tìm tên TV từ React: draftSearch useState, search áp dụng trong Zustand, submit reset page1, giữ từ khóa khi phân trang/retry, clear reset trang1. Axios gửi params search, backend giữ nguyên. Build/lint và 6 test đạt; API local tìm LG và không khớp đạt. Bài lessons/10-react-search.md.

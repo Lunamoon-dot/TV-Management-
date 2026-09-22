@@ -6,7 +6,7 @@ import { register } from '../api/auth'
 import { loginSchema, registerSchema } from '../schemas/auth'
 import { useAuthStore } from '../stores/auth-store'
 
-type FieldErrors = { email?: string[]; password?: string[] }
+type FieldErrors = { email?: string[]; password?: string[]; confirmPassword?: string[] }
 const serverErrors = z.object({ errors: z.record(z.string(), z.array(z.string())) })
 
 function getReturnPath(location: Location): string {
@@ -17,7 +17,7 @@ function getReturnPath(location: Location): string {
 
 export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   const isRegister = mode === 'register'
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ email: '', password: '', confirmPassword: '' })
   const [errors, setErrors] = useState<FieldErrors>({})
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
@@ -92,6 +92,14 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           <p id="password-help" className="mt-2 text-sm text-[#52645e]">{isRegister ? '12–128 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.' : 'Nhập mật khẩu của tài khoản đã đăng ký.'}</p>
           <p id="password-errors" className="mt-2 text-sm text-red-800">{errors.password?.join(' ')}</p>
         </div>
+        {isRegister && <div>
+          <label htmlFor="auth-confirm-password" className="font-medium">Nhập lại mật khẩu</label>
+          <input id="auth-confirm-password" type="password" autoComplete="new-password" required value={form.confirmPassword}
+            aria-invalid={Boolean(errors.confirmPassword)} aria-describedby={errors.confirmPassword ? 'confirm-password-errors' : undefined}
+            onChange={event => setForm({ ...form, confirmPassword: event.target.value })}
+            className="mt-2 w-full rounded-md border border-[#cbd3cd] bg-white px-4 py-3" />
+          {errors.confirmPassword && <p id="confirm-password-errors" className="mt-2 text-sm text-red-800">{errors.confirmPassword.join(' ')}</p>}
+        </div>}
         <button type="submit" className="w-full cursor-pointer rounded-md bg-[#254c40] px-6 py-3 text-white disabled:cursor-wait">
           {busy ? 'Đang xử lý…' : isRegister ? 'Đăng ký' : 'Đăng nhập'}
         </button>
