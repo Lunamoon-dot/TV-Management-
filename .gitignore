@@ -1,0 +1,29 @@
+# Visual Studio and local IDE state
+.vs/
+**/.vs/
+*.user
+*.suo
+
+# .NET build output
+**/bin/
+**/obj/
+
+# Frontend dependencies and build output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+
+# Local validation output
+.codex-check/
+
+# Logs and local environment overrides
+*.log
+*.local
+.env
+.env.*
+!.env.example
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/

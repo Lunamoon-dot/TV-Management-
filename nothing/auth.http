@@ -1,0 +1,53 @@
+@host = http://localhost:5005
+# Copy token from GET csrf JSON, csrfCookie from its Set-Cookie (value only).
+# After login copy authCookie from Set-Cookie, then GET csrf again for a fresh token.
+@csrfToken = PASTE_REQUEST_TOKEN
+@csrfCookie = PASTE_CSRF_COOKIE_VALUE
+@authCookie = PASTE_AUTH_COOKIE_VALUE
+
+# Run first. For anonymous use, omit the Cookie header or leave placeholder values.
+GET {{host}}/api/auth/csrf
+Cookie: TvStore.Csrf={{csrfCookie}}; TvStore.Auth={{authCookie}}
+
+###
+
+# Local sample credentials only; register does not log in.
+POST {{host}}/api/auth/register
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+Cookie: TvStore.Csrf={{csrfCookie}}
+
+{
+  "email": "learner@example.test",
+  "password": "Learning-Only-123!"
+}
+
+###
+
+# 204 and Set-Cookie: TvStore.Auth=...
+POST {{host}}/api/auth/login
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfToken}}
+Cookie: TvStore.Csrf={{csrfCookie}}
+
+{
+  "email": "learner@example.test",
+  "password": "Learning-Only-123!"
+}
+
+###
+
+GET {{host}}/api/auth/me
+Cookie: TvStore.Auth={{authCookie}}
+
+###
+
+# GET csrf again WITH authCookie before logout, then update csrfToken above.
+POST {{host}}/api/auth/logout
+X-CSRF-TOKEN: {{csrfToken}}
+Cookie: TvStore.Csrf={{csrfCookie}}; TvStore.Auth={{authCookie}}
+
+###
+
+# After logout, stop sending the old authCookie. A client cookie jar does this automatically.
+GET {{host}}/api/auth/me

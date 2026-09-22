@@ -1,0 +1,182 @@
+@nothing_HostAddress = http://localhost:5005
+@productId = 1
+@deleteProductId = 5
+@brandId = 2
+
+# Pagination: list responses now contain items, totalCount, page and pageSize
+GET {{nothing_HostAddress}}/api/products?page=1&pageSize=2
+Accept: application/json
+
+###
+
+# Second page: skip 2, take at most 2
+GET {{nothing_HostAddress}}/api/products?page=2&pageSize=2
+Accept: application/json
+
+###
+
+# totalCount is the number matching the filter, before pagination
+GET {{nothing_HostAddress}}/api/products?brandId={{brandId}}&page=1&pageSize=1
+Accept: application/json
+
+###
+
+# Invalid page size: expected 400
+GET {{nothing_HostAddress}}/api/products?pageSize=101
+Accept: application/json
+
+###
+
+# Filter by brand (optional); expected only products from this brand
+GET {{nothing_HostAddress}}/api/products?brandId={{brandId}}
+Accept: application/json
+
+###
+
+# Search part of the TV name
+GET {{nothing_HostAddress}}/api/products?search=55
+Accept: application/json
+
+###
+
+# Brand AND name; surrounding search spaces are trimmed
+GET {{nothing_HostAddress}}/api/products?brandId={{brandId}}&search=%20Samsung%20
+Accept: application/json
+
+###
+
+# Valid filter with no matches: 200, items [] and totalCount 0
+GET {{nothing_HostAddress}}/api/products?brandId=2147483647
+Accept: application/json
+
+###
+
+# Invalid query: 400 with BrandId validation error
+GET {{nothing_HostAddress}}/api/products?brandId=0
+Accept: application/json
+
+###
+
+# Get available brands; copy the desired id into brandId above
+GET {{nothing_HostAddress}}/api/brands
+Accept: application/json
+
+###
+
+# Unknown brand: expected 400 with a BrandId validation error
+POST {{nothing_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "TV invalid brand test",
+  "brandId": 2147483647,
+  "price": 1000000,
+  "stock": 1
+}
+
+###
+
+# Create a disposable TV, then copy its returned id into deleteProductId above
+POST {{nothing_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "TV DELETE practice",
+  "brandId": {{brandId}},
+  "price": 1000000,
+  "stock": 1
+}
+
+###
+
+# Permanently delete the disposable TV: 204; repeat the request: 404
+DELETE {{nothing_HostAddress}}/api/products/{{deleteProductId}}
+
+###
+
+# After deletion: expected 404
+GET {{nothing_HostAddress}}/api/products/{{deleteProductId}}
+Accept: application/json
+
+###
+
+# Update all editable fields: expected 204 No Content
+PUT {{nothing_HostAddress}}/api/products/{{productId}}
+Content-Type: application/json
+
+{
+  "name": "Samsung 4K 55 inch",
+  "brandId": {{brandId}},
+  "price": 11990000,
+  "stock": 12
+}
+
+###
+
+# Invalid update: expected 400; stored data stays unchanged
+PUT {{nothing_HostAddress}}/api/products/{{productId}}
+Content-Type: application/json
+
+{
+  "name": "",
+  "brandId": {{brandId}},
+  "price": 0,
+  "stock": -1
+}
+
+###
+
+# Missing TV: expected 404; does not create a product
+PUT {{nothing_HostAddress}}/api/products/-1
+Content-Type: application/json
+
+{
+  "name": "Samsung 4K 55 inch",
+  "brandId": {{brandId}},
+  "price": 11990000,
+  "stock": 12
+}
+
+###
+
+GET {{nothing_HostAddress}}/api/products
+Accept: application/json
+
+###
+
+# Get a TV by ID; replace productId with an ID returned by GET or POST
+GET {{nothing_HostAddress}}/api/products/{{productId}}
+Accept: application/json
+
+###
+
+# Missing TV: expected 404 Not Found
+GET {{nothing_HostAddress}}/api/products/-1
+Accept: application/json
+
+###
+
+POST {{nothing_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Samsung 4K 55 inch",
+  "brandId": {{brandId}},
+  "price": 12990000,
+  "stock": 10
+}
+
+###
+
+# Invalid input: expected 400 Bad Request
+POST {{nothing_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "",
+  "brandId": {{brandId}},
+  "price": 0,
+  "stock": -1
+}
+
+###
