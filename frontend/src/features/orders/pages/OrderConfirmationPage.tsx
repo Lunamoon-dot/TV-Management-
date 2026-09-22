@@ -60,6 +60,14 @@ function OrderDetails({ id }: { id: number }) {
     <h1 className="mt-3 text-3xl font-bold sm:text-5xl">Đơn hàng #{order.id}</h1>
     <div className="mt-5 flex flex-wrap items-center gap-3"><OrderStatusBadge status={order.status} /><span className="text-[#52645e]">{dateTime.format(new Date(order.createdAt))}</span></div>
     <section className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-6">
+      <h2 className="text-xl font-semibold">Thông tin giao hàng</h2>
+      <dl className="mt-4 space-y-3 text-sm">
+        <div><dt className="font-semibold">Người nhận</dt><dd className="mt-1 text-[#52645e]">{order.recipientName}</dd></div>
+        <div><dt className="font-semibold">Số điện thoại</dt><dd className="mt-1 text-[#52645e]">{order.phoneNumber}</dd></div>
+        <div><dt className="font-semibold">Địa chỉ</dt><dd className="mt-1 whitespace-pre-wrap text-[#52645e]">{order.shippingAddress}</dd></div>
+      </dl>
+    </section>
+    <section className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-6">
       <h2 className="text-xl font-semibold">Chi tiết đơn hàng</h2>
       <ul className="mt-5 divide-y divide-[#e1e5e2]">
         {order.items.map(item => <li key={item.productId} className="flex items-start justify-between gap-5 py-4 first:pt-0 last:pb-0">

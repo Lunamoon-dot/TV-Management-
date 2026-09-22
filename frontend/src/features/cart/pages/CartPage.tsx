@@ -2,10 +2,17 @@ import { useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { useAuthStore } from '../../auth/stores/auth-store'
 import { createOrder } from '../../orders/api/orders'
+import { checkoutSchema, type CheckoutFormInput } from '../../orders/schemas/checkout'
 import { isAuthenticationError, isValidationError } from '../../../shared/api/errors'
 import { getCartTotal, useCartStore } from '../stores/cart-store'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+
+const emptyCheckout: CheckoutFormInput = {
+  recipientName: '',
+  phoneNumber: '',
+  shippingAddress: '',
+}
 
 export function CartPage() {
   const items = useCartStore(state => state.items)
@@ -19,20 +26,36 @@ export function CartPage() {
   const inFlight = useRef(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [checkoutDetails, setCheckoutDetails] = useState(emptyCheckout)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof CheckoutFormInput, string>>>({})
   const total = getCartTotal(items)
 
-  async function checkout() {
+  async function checkout(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     if (inFlight.current || items.length === 0) return
     if (session.status !== 'authenticated') {
       navigate('/login', { state: { from: location.pathname } })
       return
     }
 
+    const parsed = checkoutSchema.safeParse(checkoutDetails)
+    if (!parsed.success) {
+      const errors: Partial<Record<keyof CheckoutFormInput, string>> = {}
+      for (const issue of parsed.error.issues) {
+        const field = issue.path[0] as keyof CheckoutFormInput
+        errors[field] ??= issue.message
+      }
+      setFieldErrors(errors)
+      return
+    }
+
     inFlight.current = true
     setBusy(true)
     setError('')
+    setFieldErrors({})
     try {
       const order = await createOrder({
+        ...parsed.data,
         items: items.map(item => ({ productId: item.productId, quantity: item.quantity })),
       })
       clear()
@@ -85,16 +108,35 @@ export function CartPage() {
             <p className="mt-5 font-semibold">Tạm tính: {money.format(item.price * item.quantity)}</p>
           </li>)}
         </ul>
-        <aside className="h-fit rounded-lg border border-[#d9dfda] bg-white p-6">
+        <form className="h-fit rounded-lg border border-[#d9dfda] bg-white p-6" noValidate onSubmit={event => void checkout(event)}>
           <h2 className="text-xl font-semibold">Tổng đơn tạm tính</h2>
           <p className="mt-5 text-3xl font-bold">{money.format(total)}</p>
           <p className="mt-4 text-sm text-[#52645e]">Giá và tồn kho sẽ được backend kiểm tra lại trước khi tạo đơn.</p>
-          <button type="button" disabled={busy || session.status === 'loading'} onClick={() => void checkout()}
+
+          <label className="mt-6 block text-sm font-semibold" htmlFor="recipientName">Tên người nhận</label>
+          <input id="recipientName" value={checkoutDetails.recipientName}
+            onChange={event => setCheckoutDetails(current => ({ ...current, recipientName: event.target.value }))}
+            className="mt-2 w-full rounded-md border border-[#cbd3cd] px-3 py-2" />
+          {fieldErrors.recipientName && <p className="mt-1 text-sm text-red-800">{fieldErrors.recipientName}</p>}
+
+          <label className="mt-4 block text-sm font-semibold" htmlFor="phoneNumber">Số điện thoại</label>
+          <input id="phoneNumber" type="tel" value={checkoutDetails.phoneNumber}
+            onChange={event => setCheckoutDetails(current => ({ ...current, phoneNumber: event.target.value }))}
+            className="mt-2 w-full rounded-md border border-[#cbd3cd] px-3 py-2" />
+          {fieldErrors.phoneNumber && <p className="mt-1 text-sm text-red-800">{fieldErrors.phoneNumber}</p>}
+
+          <label className="mt-4 block text-sm font-semibold" htmlFor="shippingAddress">Địa chỉ giao hàng</label>
+          <textarea id="shippingAddress" rows={3} value={checkoutDetails.shippingAddress}
+            onChange={event => setCheckoutDetails(current => ({ ...current, shippingAddress: event.target.value }))}
+            className="mt-2 w-full resize-y rounded-md border border-[#cbd3cd] px-3 py-2" />
+          {fieldErrors.shippingAddress && <p className="mt-1 text-sm text-red-800">{fieldErrors.shippingAddress}</p>}
+
+          <button type="submit" disabled={busy || session.status === 'loading'}
             className="mt-6 w-full cursor-pointer rounded-md bg-[#254c40] px-6 py-3 text-white disabled:cursor-wait disabled:opacity-60">
             {busy ? 'Đang đặt hàng…' : session.status === 'authenticated' ? 'Đặt hàng' : 'Đăng nhập để đặt hàng'}
           </button>
           {error && <p role="alert" className="mt-4 text-sm text-red-800">{error}</p>}
-        </aside>
+        </form>
       </div>}
   </main>
 }

@@ -43,6 +43,9 @@ public class OrdersController : ControllerBase
             {
                 Id = order.Id,
                 CreatedAt = order.CreatedAt,
+                RecipientName = order.RecipientName,
+                PhoneNumber = order.PhoneNumber,
+                ShippingAddress = order.ShippingAddress,
                 Status = order.Status,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
@@ -82,6 +85,9 @@ public class OrdersController : ControllerBase
             {
                 Id = order.Id,
                 CreatedAt = order.CreatedAt,
+                RecipientName = order.RecipientName,
+                PhoneNumber = order.PhoneNumber,
+                ShippingAddress = order.ShippingAddress,
                 Status = order.Status,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
@@ -110,6 +116,14 @@ public class OrdersController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
 
+        if (string.IsNullOrWhiteSpace(request.RecipientName))
+            ModelState.AddModelError(nameof(request.RecipientName), "Recipient name is required.");
+        if (string.IsNullOrWhiteSpace(request.PhoneNumber))
+            ModelState.AddModelError(nameof(request.PhoneNumber), "Phone number is required.");
+        if (string.IsNullOrWhiteSpace(request.ShippingAddress))
+            ModelState.AddModelError(nameof(request.ShippingAddress), "Shipping address is required.");
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
         var requestedItems = request.Items
             .GroupBy(item => item.ProductId)
             .Select(group => new
@@ -132,7 +146,10 @@ public class OrdersController : ControllerBase
         var order = new Order
         {
             CustomerId = user.Id,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            RecipientName = request.RecipientName.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            ShippingAddress = request.ShippingAddress.Trim()
         };
 
         foreach (var requestedItem in requestedItems)
@@ -178,6 +195,9 @@ public class OrdersController : ControllerBase
         {
             Id = order.Id,
             CreatedAt = order.CreatedAt,
+            RecipientName = order.RecipientName,
+            PhoneNumber = order.PhoneNumber,
+            ShippingAddress = order.ShippingAddress,
             Status = order.Status,
             TotalAmount = order.TotalAmount,
             Items = order.Items.Select(item => new OrderItemResponse

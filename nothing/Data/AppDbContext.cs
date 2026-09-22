@@ -53,6 +53,21 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasPrecision(18, 2);
 
         modelBuilder.Entity<Order>()
+            .Property(order => order.RecipientName)
+            .HasMaxLength(100)
+            .IsRequired();
+
+        modelBuilder.Entity<Order>()
+            .Property(order => order.PhoneNumber)
+            .HasMaxLength(20)
+            .IsRequired();
+
+        modelBuilder.Entity<Order>()
+            .Property(order => order.ShippingAddress)
+            .HasMaxLength(300)
+            .IsRequired();
+
+        modelBuilder.Entity<Order>()
             .Property(order => order.Status)
             .HasConversion<string>()
             .HasMaxLength(20)

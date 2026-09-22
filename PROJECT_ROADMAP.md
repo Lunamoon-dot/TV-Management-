@@ -135,3 +135,7 @@ Hủy đơn từ Pending/Confirmed đã hoàn lại tồn kho và đổi trạng
 ## Tiến độ Cart — bài28
 
 Cart được persist trong localStorage bằng Zustand middleware và sống qua refresh; chỉ items được lưu, clear sau checkout cũng xóa storage. Client snapshot vẫn không phải nguồn giá/tồn kho đáng tin. Bước tiếp theo nên thêm thông tin người nhận và địa chỉ giao hàng vào checkout/order trước khi mở rộng các module khác.
+
+## Tiến độ Checkout — bài29
+
+Đơn hàng đã lưu snapshot tên người nhận, số điện thoại và địa chỉ giao hàng. Form giỏ hàng dùng Zod, API validate lại bằng DTO và dữ liệu được trả trong chi tiết đơn sau refresh. Chưa có address book hoặc nhiều bước checkout. Bước tiếp theo nên chống tạo đơn lặp khi người dùng double-click hoặc client retry request.

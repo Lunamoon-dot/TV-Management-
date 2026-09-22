@@ -46,7 +46,7 @@ try {
     $productId = $catalog.items[0].id
     $stockBefore = $catalog.items[0].stock
     $token = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $customer).token
-    $created = Invoke-RestMethod "$BaseUrl/api/orders" -WebSession $customer -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body (@{ items=@(@{ productId=$productId; quantity=1 }) } | ConvertTo-Json -Depth 4)
+    $created = Invoke-RestMethod "$BaseUrl/api/orders" -WebSession $customer -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body (@{ recipientName='Nguyen Van Test'; phoneNumber='0901234567'; shippingAddress='123 Duong Test, Quan 1'; items=@(@{ productId=$productId; quantity=1 }) } | ConvertTo-Json -Depth 4)
     $orderId = $created.id
 
     Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders" -WebSession $customer -SkipHttpErrorCheck) 403 'customer cannot list admin orders'

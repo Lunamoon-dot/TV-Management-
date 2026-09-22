@@ -1,4 +1,7 @@
 export interface CreateOrderRequest {
+  recipientName: string
+  phoneNumber: string
+  shippingAddress: string
   items: Array<{
     productId: number
     quantity: number
@@ -17,6 +20,9 @@ export interface OrderItemResponse {
 export interface OrderResponse {
   id: number
   createdAt: string
+  recipientName: string
+  phoneNumber: string
+  shippingAddress: string
   status: OrderStatus
   totalAmount: number
   items: OrderItemResponse[]

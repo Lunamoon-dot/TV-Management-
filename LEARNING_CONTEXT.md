@@ -50,6 +50,10 @@ Ngày 12/09/2026, người học cung cấp `C:\Users\dell\E_disk\Captures\Pictu
 - Chưa áp dụng kiến trúc nhiều tầng hoặc abstraction phức tạp nếu chưa làm rõ nhu cầu.
 - Đây là định hướng đồng hành đề xuất, có thể điều chỉnh theo yêu cầu tiếp theo của tôi.
 
+## Tiến độ checkout — bài 29
+
+Checkout đã nhận tên người nhận, số điện thoại và địa chỉ giao hàng. React dùng Zod để báo lỗi theo field; ASP.NET bind vào `CreateOrderRequest` và validate lại; SQL lưu ba giá trị trực tiếp trên `Order` như snapshot. Trang chi tiết đơn đọc lại thông tin này sau refresh. Chưa tách sổ địa chỉ riêng vì hiện chưa có nhu cầu lưu nhiều địa chỉ cho một khách hàng.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

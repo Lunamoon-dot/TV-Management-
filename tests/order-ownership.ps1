@@ -32,9 +32,9 @@ try {
     $productId = $catalog.items[0].id
 
     $csrf = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $session1).token
-    $created = Invoke-RestMethod "$BaseUrl/api/orders" -WebSession $session1 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$csrf } -Body (@{ items=@(@{ productId=$productId; quantity=1 }) } | ConvertTo-Json -Depth 4)
+    $created = Invoke-RestMethod "$BaseUrl/api/orders" -WebSession $session1 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$csrf } -Body (@{ recipientName='Nguyen Van Test'; phoneNumber='0901234567'; shippingAddress='123 Duong Test, Quan 1'; items=@(@{ productId=$productId; quantity=1 }) } | ConvertTo-Json -Depth 4)
     $orderId = $created.id
-    if ($orderId -le 0 -or $created.status -ne 'Pending') { throw 'Order was not created with Pending status.' }
+    if ($orderId -le 0 -or $created.status -ne 'Pending' -or $created.recipientName -ne 'Nguyen Van Test') { throw 'Order was not created with correct shipping details and Pending status.' }
     Write-Output "PASS: owner created order #$orderId"
 
     $history = Invoke-RestMethod "$BaseUrl/api/orders?page=1&pageSize=10" -WebSession $session1
