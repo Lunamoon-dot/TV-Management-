@@ -137,6 +137,8 @@ Ngày 22/09/2026: form đăng ký thêm `confirmPassword`. Zod yêu cầu hai l�
 
 Ngày 22/09/2026: form auth thêm nút Hiện/Ẩn mật khẩu. Ô password có ở cả login/register; ô confirm password có toggle độc lập khi đăng ký. Button dùng type=button, aria-label và aria-pressed để không submit form và hỗ trợ accessibility.
 
+Ngày 22/09/2026: đồng bộ password policy frontend/backend theo yêu cầu người học: 8–128 ký tự, cần ít nhất một chữ thường và một chữ số; bỏ bắt buộc chữ hoa và ký tự đặc biệt. RegisterRequest, Identity options, Zod, helper text và test đều dùng cùng quy tắc.
+
 Bài 9: frontend có Trang trước/Trang sau, Axios params page động/pageSize=2 để thực hành trên 3 TV. Store requestedPage giữ trang cho retry lỗi; chưa persist/đồng bộ URL. Backend không đổi. Build/lint và 5 test store đạt. Hướng dẫn lessons/09-react-pagination.md.
 
 Bài 10 đã thêm tìm tên TV từ React: draftSearch useState, search áp dụng trong Zustand, submit reset page1, giữ từ khóa khi phân trang/retry, clear reset trang1. Axios gửi params search, backend giữ nguyên. Build/lint và 6 test đạt; API local tìm LG và không khớp đạt. Bài lessons/10-react-search.md.

@@ -26,8 +26,8 @@ UserManager được inject qua constructor nhờ đăng ký AddIdentityCore/Add
 
 ## Hai tầng validation server
 
-1. RegisterRequest: Required, EmailAddress, email tối đa256; mật khẩu12–128 ký tự. ApiController trả400 trước action nếu sai.
-2. UserManager: policy password và kiểm tra tài khoản. Program.cs đặt RequiredLength12, RequireUniqueEmail=true; các yêu cầu mặc định chữ hoa/chữ thường/chữ số/ký tự không phải chữ-số vẫn bật.
+1. RegisterRequest: Required, EmailAddress, email tối đa256; mật khẩu 8–128 ký tự. ApiController trả400 trước action nếu sai.
+2. UserManager: policy password và kiểm tra tài khoản. Program.cs đặt RequiredLength 8, yêu cầu chữ thường và chữ số; không bắt buộc chữ hoa hay ký tự đặc biệt. RequireUniqueEmail vẫn bật.
 
 Ví dụ abcdefghijklmnop đủ độ dài DTO nhưng thiếu các nhóm ký tự nên IdentityResult.Succeeded=false. Đây là kết quả nghiệp vụ dự kiến, không phải exception500.
 

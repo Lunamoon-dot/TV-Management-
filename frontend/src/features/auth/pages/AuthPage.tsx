@@ -98,7 +98,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
               {showPassword ? 'Ẩn' : 'Hiện'}
             </button>
           </div>
-          <p id="password-help" className="mt-2 text-sm text-[#52645e]">{isRegister ? '12–128 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.' : 'Nhập mật khẩu của tài khoản đã đăng ký.'}</p>
+          <p id="password-help" className="mt-2 text-sm text-[#52645e]">{isRegister ? '8–128 ký tự, gồm ít nhất một chữ thường và một chữ số.' : 'Nhập mật khẩu của tài khoản đã đăng ký.'}</p>
           <p id="password-errors" className="mt-2 text-sm text-red-800">{errors.password?.join(' ')}</p>
         </div>
         {isRegister && <div>

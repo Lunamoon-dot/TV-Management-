@@ -10,6 +10,7 @@ it('rejects weak registration passwords without applying creation policy to logi
   expect(registerSchema.safeParse(input).success).toBe(false)
   expect(loginSchema.safeParse(input).success).toBe(true)
   expect(registerSchema.safeParse({ ...input, password: 'abcdefghijklmnop', confirmPassword: 'abcdefghijklmnop' }).success).toBe(false)
+  expect(registerSchema.safeParse({ ...input, password: 'huytp231', confirmPassword: 'huytp231' }).success).toBe(true)
 })
 it('rejects a mismatched confirmation and omits it from the API request', () => {
   const input = { email: 'user@example.test', password: 'StrongPassword-123!', confirmPassword: 'DifferentPassword-123!' }
