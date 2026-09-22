@@ -21,6 +21,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const inFlight = useRef(false)
   const signIn = useAuthStore(state => state.signIn)
   const navigate = useNavigate()
@@ -85,19 +87,33 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
         </div>
         <div>
           <label htmlFor="auth-password" className="font-medium">Mật khẩu</label>
-          <input id="auth-password" type="password" autoComplete={isRegister ? 'new-password' : 'current-password'} required value={form.password}
-            aria-invalid={Boolean(errors.password)} aria-describedby="password-help password-errors"
-            onChange={event => setForm({ ...form, password: event.target.value })}
-            className="mt-2 w-full rounded-md border border-[#cbd3cd] bg-white px-4 py-3" />
+          <div className="relative mt-2">
+            <input id="auth-password" type={showPassword ? 'text' : 'password'} autoComplete={isRegister ? 'new-password' : 'current-password'} required value={form.password}
+              aria-invalid={Boolean(errors.password)} aria-describedby="password-help password-errors"
+              onChange={event => setForm({ ...form, password: event.target.value })}
+              className="w-full rounded-md border border-[#cbd3cd] bg-white py-3 pr-20 pl-4" />
+            <button type="button" aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'} aria-pressed={showPassword}
+              className="absolute inset-y-0 right-0 cursor-pointer px-4 text-sm font-medium text-[#254c40]"
+              onClick={() => setShowPassword(value => !value)}>
+              {showPassword ? 'Ẩn' : 'Hiện'}
+            </button>
+          </div>
           <p id="password-help" className="mt-2 text-sm text-[#52645e]">{isRegister ? '12–128 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt.' : 'Nhập mật khẩu của tài khoản đã đăng ký.'}</p>
           <p id="password-errors" className="mt-2 text-sm text-red-800">{errors.password?.join(' ')}</p>
         </div>
         {isRegister && <div>
           <label htmlFor="auth-confirm-password" className="font-medium">Nhập lại mật khẩu</label>
-          <input id="auth-confirm-password" type="password" autoComplete="new-password" required value={form.confirmPassword}
-            aria-invalid={Boolean(errors.confirmPassword)} aria-describedby={errors.confirmPassword ? 'confirm-password-errors' : undefined}
-            onChange={event => setForm({ ...form, confirmPassword: event.target.value })}
-            className="mt-2 w-full rounded-md border border-[#cbd3cd] bg-white px-4 py-3" />
+          <div className="relative mt-2">
+            <input id="auth-confirm-password" type={showConfirmPassword ? 'text' : 'password'} autoComplete="new-password" required value={form.confirmPassword}
+              aria-invalid={Boolean(errors.confirmPassword)} aria-describedby={errors.confirmPassword ? 'confirm-password-errors' : undefined}
+              onChange={event => setForm({ ...form, confirmPassword: event.target.value })}
+              className="w-full rounded-md border border-[#cbd3cd] bg-white py-3 pr-20 pl-4" />
+            <button type="button" aria-label={showConfirmPassword ? 'Ẩn mật khẩu nhập lại' : 'Hiện mật khẩu nhập lại'} aria-pressed={showConfirmPassword}
+              className="absolute inset-y-0 right-0 cursor-pointer px-4 text-sm font-medium text-[#254c40]"
+              onClick={() => setShowConfirmPassword(value => !value)}>
+              {showConfirmPassword ? 'Ẩn' : 'Hiện'}
+            </button>
+          </div>
           {errors.confirmPassword && <p id="confirm-password-errors" className="mt-2 text-sm text-red-800">{errors.confirmPassword.join(' ')}</p>}
         </div>}
         <button type="submit" className="w-full cursor-pointer rounded-md bg-[#254c40] px-6 py-3 text-white disabled:cursor-wait">
