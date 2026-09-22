@@ -20,6 +20,7 @@ export function AdminLayout() {
       <nav aria-label="Quản trị" className="mt-8 flex flex-wrap gap-2 lg:flex-col">
         <NavLink to="/admin" end className={navClass}>Tổng quan</NavLink>
         <NavLink to="/admin/products" className={navClass}>Sản phẩm</NavLink>
+        <NavLink to="/admin/orders" className={navClass}>Đơn hàng</NavLink>
       </nav>
       <div className="mt-8 border-t border-white/20 pt-5 text-sm lg:mt-12">
         <p className="break-all text-[#d8e5df]">{email}</p>

@@ -141,6 +141,8 @@ Ngày 22/09/2026: đồng bộ password policy frontend/backend theo yêu cầu 
 
 Ngày 22/09/2026: bài 25 order status foundation: thêm enum Pending/Confirmed/Shipped/Completed/Cancelled vào Order, EF lưu nvarchar(20), migration `20260922115948_AddOrderStatus` backfill `Pending` và đã apply local. OrderResponse serialize enum dạng string. React thêm OrderStatus type và badge tiếng Việt ở lịch sử/chi tiết. Backend/frontend build, lint và 39 test đạt; integration order ownership xác nhận create/history/detail đều trả Pending, user khác vẫn 404, SQL không có status sai; dữ liệu test đã dọn. Xem `lessons/25-order-status-foundation.md`.
 
+Ngày 22/09/2026: bài 26 Admin order status: thêm `/api/admin/orders` và PUT status, bảo vệ role Admin + CSRF; transition tối thiểu Pending→Confirmed/Cancelled, Confirmed→Shipped/Cancelled, Shipped→Completed, terminal không đổi. React thêm `/admin/orders`, sidebar, bảng đơn và action tương ứng. Backend/frontend build, lint, 39 test đạt. Integration test Customer 403, Admin list được, transition sai 400, chuỗi hợp lệ 204 và Customer thấy Completed; dữ liệu test đã dọn. Xem `lessons/26-admin-order-status.md`.
+
 Bài 9: frontend có Trang trước/Trang sau, Axios params page động/pageSize=2 để thực hành trên 3 TV. Store requestedPage giữ trang cho retry lỗi; chưa persist/đồng bộ URL. Backend không đổi. Build/lint và 5 test store đạt. Hướng dẫn lessons/09-react-pagination.md.
 
 Bài 10 đã thêm tìm tên TV từ React: draftSearch useState, search áp dụng trong Zustand, submit reset page1, giữ từ khóa khi phân trang/retry, clear reset trang1. Axios gửi params search, backend giữ nguyên. Build/lint và 6 test đạt; API local tìm LG và không khớp đạt. Bài lessons/10-react-search.md.

@@ -123,3 +123,7 @@ Customer có lịch sử `/orders` và chi tiết `/orders/{id}` tải từ SQL,
 ## Tiến độ Order Status — bài25
 
 Order có trạng thái lưu dạng chuỗi: Pending, Confirmed, Shipped, Completed, Cancelled. Đơn mới và dữ liệu cũ đều bắt đầu Pending; API trả chuỗi enum và Customer thấy badge tiếng Việt trong lịch sử/chi tiết. Chưa có endpoint đổi trạng thái. Bước tiếp theo xây Admin Orders và giới hạn các transition hợp lệ.
+
+## Tiến độ Admin Orders — bài26
+
+Admin có `/admin/orders`, API phân trang và PUT status với CSRF. Backend chỉ chấp nhận transition tuần tự; Customer không gọi được API Admin. Bản này cố ý giữ đơn giản, chưa có audit log, ghi chú nội bộ, thông báo, hoàn kho khi hủy hoặc xử lý concurrency giữa hai Admin. Bước tiếp theo nên xử lý hủy đơn và hoàn tồn kho đúng transaction trước khi mở rộng giao diện.
