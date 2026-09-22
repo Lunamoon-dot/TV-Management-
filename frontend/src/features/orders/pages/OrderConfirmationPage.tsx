@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { isNotFoundError } from '../../../shared/api/errors'
-import { getOrderById } from '../api/orders'
+import { isAuthenticationError, isNotFoundError, isValidationError } from '../../../shared/api/errors'
+import { cancelOrder, getOrderById } from '../api/orders'
 import type { OrderResponse } from '../types'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
 
@@ -25,6 +25,24 @@ export function OrderConfirmationPage() {
 function OrderDetails({ id }: { id: number }) {
   const [state, setState] = useState<DetailsState>({ status: 'loading' })
   const [retry, setRetry] = useState(0)
+  const [cancelling, setCancelling] = useState(false)
+  const [cancelError, setCancelError] = useState('')
+
+  async function cancel(order: OrderResponse) {
+    if (cancelling || !window.confirm('Bạn chắc chắn muốn hủy đơn hàng này?')) return
+    setCancelling(true)
+    setCancelError('')
+    try {
+      await cancelOrder(order.id)
+      setState({ status: 'success', order: { ...order, status: 'Cancelled' } })
+    } catch (error: unknown) {
+      if (isAuthenticationError(error)) setCancelError('Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.')
+      else if (isValidationError(error)) setCancelError('Đơn hàng không còn ở trạng thái có thể hủy.')
+      else setCancelError('Chưa hủy được đơn hàng. Hãy thử lại.')
+    } finally {
+      setCancelling(false)
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -59,6 +77,13 @@ function OrderDetails({ id }: { id: number }) {
     <p className="text-xs font-bold tracking-[2px] text-[#436b5e]">TV STORE / ĐƠN HÀNG</p>
     <h1 className="mt-3 text-3xl font-bold sm:text-5xl">Đơn hàng #{order.id}</h1>
     <div className="mt-5 flex flex-wrap items-center gap-3"><OrderStatusBadge status={order.status} /><span className="text-[#52645e]">{dateTime.format(new Date(order.createdAt))}</span></div>
+    {order.status === 'Pending' && <div className="mt-6">
+      <button type="button" disabled={cancelling} onClick={() => void cancel(order)}
+        className="cursor-pointer rounded-md border border-red-800 px-4 py-2 text-red-800 disabled:cursor-wait disabled:opacity-60">
+        {cancelling ? 'Đang hủy…' : 'Hủy đơn hàng'}
+      </button>
+    </div>}
+    {cancelError && <p role="alert" className="mt-3 text-sm text-red-800">{cancelError}</p>}
     <section className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-6">
       <h2 className="text-xl font-semibold">Thông tin giao hàng</h2>
       <dl className="mt-4 space-y-3 text-sm">

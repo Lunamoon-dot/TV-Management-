@@ -143,3 +143,7 @@ Cart được persist trong localStorage bằng Zustand middleware và sống qu
 ## Tiến độ Checkout — bài30
 
 Tạo đơn đã idempotent theo cặp Customer và CheckoutId. Retry cùng khóa trả lại đơn cũ; SQL unique index bảo vệ dữ liệu và integration test xác nhận lịch sử chỉ có một đơn. Bước tiếp theo phù hợp là bổ sung ảnh/thông số cho catalog hoặc bắt đầu luồng thanh toán giả lập, tùy mục tiêu học ưu tiên.
+
+## Tiến độ Customer Orders — bài31
+
+Customer đã tự hủy được đơn Pending; đơn không thuộc tài khoản trả 404, hủy lặp bị chặn và tồn kho được hoàn đúng một lần. Admin và Customer dùng chung `OrderCancellationService`, nhưng có quy tắc trạng thái khác nhau. Bước tiếp theo nên làm catalog giống sản phẩm thật hơn bằng ảnh và thông số TV trước khi mô phỏng thanh toán.

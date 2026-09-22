@@ -14,10 +14,12 @@ namespace nothing.Features.Orders;
 public class AdminOrdersController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly OrderCancellationService _cancellationService;
 
-    public AdminOrdersController(AppDbContext context)
+    public AdminOrdersController(AppDbContext context, OrderCancellationService cancellationService)
     {
         _context = context;
+        _cancellationService = cancellationService;
     }
 
     [HttpGet]
@@ -58,17 +60,25 @@ public class AdminOrdersController : ControllerBase
         UpdateOrderStatusRequest request,
         CancellationToken cancellationToken)
     {
+        var nextStatus = request.Status!.Value;
+        if (nextStatus == OrderStatus.Cancelled)
+        {
+            return await _cancellationService.CancelByAdminAsync(id, cancellationToken) switch
+            {
+                CancelOrderResult.Success => NoContent(),
+                CancelOrderResult.NotFound => NotFound(),
+                _ => InvalidTransition("Only Pending or Confirmed orders can be cancelled.")
+            };
+        }
+
         await using var transaction = await _context.Database.BeginTransactionAsync(
             IsolationLevel.Serializable,
             cancellationToken);
 
         var order = await _context.Orders
-            .Include(order => order.Items)
-            .ThenInclude(item => item.Product)
             .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
         if (order is null) return NotFound();
 
-        var nextStatus = request.Status!.Value;
         if (!CanTransition(order.Status, nextStatus))
         {
             ModelState.AddModelError(nameof(request.Status),
@@ -76,18 +86,16 @@ public class AdminOrdersController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        if (nextStatus == OrderStatus.Cancelled)
-        {
-            foreach (var item in order.Items)
-            {
-                item.Product.Stock += item.Quantity;
-            }
-        }
-
         order.Status = nextStatus;
         await _context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return NoContent();
+    }
+
+    private IActionResult InvalidTransition(string message)
+    {
+        ModelState.AddModelError(nameof(UpdateOrderStatusRequest.Status), message);
+        return ValidationProblem(ModelState);
     }
 
     private static bool CanTransition(OrderStatus current, OrderStatus next) =>

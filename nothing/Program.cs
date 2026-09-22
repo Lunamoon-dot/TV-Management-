@@ -5,6 +5,7 @@ using nothing.Models;
 using nothing.ExceptionHandlers;
 using nothing.Infrastructure;
 using nothing.Services;
+using nothing.Features.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<OrderCancellationService>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddHostedService<DevelopmentAdminSeeder>();

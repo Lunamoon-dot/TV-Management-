@@ -15,11 +15,37 @@ public class OrdersController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly OrderCancellationService _cancellationService;
 
-    public OrdersController(AppDbContext context, UserManager<ApplicationUser> userManager)
+    public OrdersController(
+        AppDbContext context,
+        UserManager<ApplicationUser> userManager,
+        OrderCancellationService cancellationService)
     {
         _context = context;
         _userManager = userManager;
+        _cancellationService = cancellationService;
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("{id:int}/cancel")]
+    public async Task<IActionResult> Cancel(int id, CancellationToken cancellationToken)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (userId is null) return Unauthorized();
+
+        return await _cancellationService.CancelByCustomerAsync(id, userId, cancellationToken) switch
+        {
+            CancelOrderResult.Success => NoContent(),
+            CancelOrderResult.NotFound => NotFound(),
+            _ => InvalidCancellation()
+        };
+    }
+
+    private IActionResult InvalidCancellation()
+    {
+        ModelState.AddModelError(nameof(Order.Status), "Only Pending orders can be cancelled by the customer.");
+        return ValidationProblem(ModelState);
     }
 
     [HttpGet]

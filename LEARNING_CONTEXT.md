@@ -58,6 +58,10 @@ Checkout đã nhận tên người nhận, số điện thoại và địa chỉ
 
 Checkout có `CheckoutId` UUID và unique index theo `(CustomerId, CheckoutId)`. Gửi lại cùng request trả đơn đã tạo thay vì tạo đơn và trừ kho lần nữa. React giữ UUID ổn định bằng `useRef` trong vòng đời trang giỏ hàng. Chưa persist lần checkout đang chờ qua thao tác đóng tab/browser.
 
+## Tiến độ Customer Orders — bài 31
+
+Customer có thể tự hủy đơn `Pending` từ trang chi tiết. Backend lấy CustomerId từ cookie, trả 404 cho đơn người khác, hoàn kho và đổi trạng thái trong cùng transaction. `OrderCancellationService` được tạo vì Admin và Customer thật sự dùng chung nghiệp vụ hoàn kho; controller tiếp tục chịu trách nhiệm auth và HTTP response.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

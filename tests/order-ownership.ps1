@@ -8,6 +8,7 @@ $session1 = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
 $session2 = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
 $orderId = 0
 $productId = 0
+$stockRestored = $false
 
 function Expect($response, [int]$code, [string]$label) {
     if ($response.StatusCode -ne $code) { throw "${label}: expected $code, got $($response.StatusCode)" }
@@ -52,16 +53,25 @@ try {
     Write-Output 'PASS: owner can read order detail'
 
     Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId" -WebSession $session2 -SkipHttpErrorCheck) 404 'other customer cannot read order'
+    $otherCsrf = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $session2).token
+    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session2 -Method Post -Headers @{ 'X-CSRF-TOKEN'=$otherCsrf } -SkipHttpErrorCheck) 404 'other customer cannot cancel order'
     $otherHistory = Invoke-RestMethod "$BaseUrl/api/orders?page=1&pageSize=10" -WebSession $session2
     if ($otherHistory.totalCount -ne 0) { throw 'Other customer history leaked an order.' }
     Write-Output 'PASS: histories are isolated by customer'
+
+    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session1 -Method Post -Headers @{ 'X-CSRF-TOKEN'=$csrf } -SkipHttpErrorCheck) 204 'owner cancels Pending order'
+    $stockRestored = $true
+    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session1 -Method Post -Headers @{ 'X-CSRF-TOKEN'=$csrf } -SkipHttpErrorCheck) 400 'owner cannot cancel twice'
+    $cancelled = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $session1
+    if ($cancelled.status -ne 'Cancelled') { throw 'Cancelled status was not returned to owner.' }
+    Write-Output 'PASS: customer cancellation is visible and idempotent for stock'
 } finally {
     $cleanup = @"
 SET QUOTED_IDENTIFIER ON;
 SET ANSI_NULLS ON;
 IF $orderId > 0
 BEGIN
-    UPDATE Products SET Stock = Stock + 1 WHERE Id = $productId;
+    IF '$stockRestored' = 'False' UPDATE Products SET Stock = Stock + 1 WHERE Id = $productId;
     DELETE FROM OrderItems WHERE OrderId = $orderId;
     DELETE FROM Orders WHERE Id = $orderId;
 END;
