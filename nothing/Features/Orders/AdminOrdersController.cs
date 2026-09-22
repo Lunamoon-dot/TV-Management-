@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -57,7 +58,13 @@ public class AdminOrdersController : ControllerBase
         UpdateOrderStatusRequest request,
         CancellationToken cancellationToken)
     {
+        await using var transaction = await _context.Database.BeginTransactionAsync(
+            IsolationLevel.Serializable,
+            cancellationToken);
+
         var order = await _context.Orders
+            .Include(order => order.Items)
+            .ThenInclude(item => item.Product)
             .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
         if (order is null) return NotFound();
 
@@ -69,8 +76,17 @@ public class AdminOrdersController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
+        if (nextStatus == OrderStatus.Cancelled)
+        {
+            foreach (var item in order.Items)
+            {
+                item.Product.Stock += item.Quantity;
+            }
+        }
+
         order.Status = nextStatus;
         await _context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return NoContent();
     }
 

@@ -8,6 +8,7 @@ $customer = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
 $admin = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
 $orderId = 0
 $productId = 0
+$stockRestored = $false
 
 function Expect($response, [int]$code, [string]$label) {
     if ($response.StatusCode -ne $code) { throw "${label}: expected $code, got $($response.StatusCode)" }
@@ -43,6 +44,7 @@ try {
 
     $catalog = Invoke-RestMethod "$BaseUrl/api/products?page=1&pageSize=1"
     $productId = $catalog.items[0].id
+    $stockBefore = $catalog.items[0].stock
     $token = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $customer).token
     $created = Invoke-RestMethod "$BaseUrl/api/orders" -WebSession $customer -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body (@{ items=@(@{ productId=$productId; quantity=1 }) } | ConvertTo-Json -Depth 4)
     $orderId = $created.id
@@ -54,20 +56,22 @@ try {
 
     Change-Status 'Completed' 400
     Change-Status 'Confirmed' 204
-    Change-Status 'Shipped' 204
-    Change-Status 'Completed' 204
+    Change-Status 'Cancelled' 204
+    $stockRestored = $true
     Change-Status 'Cancelled' 400
 
     $customerOrder = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $customer
-    if ($customerOrder.status -ne 'Completed') { throw 'Customer does not see updated status.' }
-    Write-Output 'PASS: customer sees Completed status'
+    if ($customerOrder.status -ne 'Cancelled') { throw 'Customer does not see updated status.' }
+    $productAfterCancel = Invoke-RestMethod "$BaseUrl/api/products/$productId"
+    if ($productAfterCancel.stock -ne $stockBefore) { throw 'Cancelling did not restore product stock.' }
+    Write-Output 'PASS: customer sees Cancelled and stock is restored once'
 } finally {
     $cleanup = @"
 SET QUOTED_IDENTIFIER ON;
 SET ANSI_NULLS ON;
 IF $orderId > 0
 BEGIN
-    UPDATE Products SET Stock = Stock + 1 WHERE Id = $productId;
+    IF '$stockRestored' = 'False' UPDATE Products SET Stock = Stock + 1 WHERE Id = $productId;
     DELETE FROM OrderItems WHERE OrderId = $orderId;
     DELETE FROM Orders WHERE Id = $orderId;
 END;

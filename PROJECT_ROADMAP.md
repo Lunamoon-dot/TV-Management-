@@ -127,3 +127,7 @@ Order có trạng thái lưu dạng chuỗi: Pending, Confirmed, Shipped, Comple
 ## Tiến độ Admin Orders — bài26
 
 Admin có `/admin/orders`, API phân trang và PUT status với CSRF. Backend chỉ chấp nhận transition tuần tự; Customer không gọi được API Admin. Bản này cố ý giữ đơn giản, chưa có audit log, ghi chú nội bộ, thông báo, hoàn kho khi hủy hoặc xử lý concurrency giữa hai Admin. Bước tiếp theo nên xử lý hủy đơn và hoàn tồn kho đúng transaction trước khi mở rộng giao diện.
+
+## Tiến độ hủy đơn — bài27
+
+Hủy đơn từ Pending/Confirmed đã hoàn lại tồn kho và đổi trạng thái trong cùng transaction Serializable. Hủy lặp bị chặn nên không cộng kho hai lần; Shipped không thể hủy trong workflow hiện tại. Chưa có hoàn tiền, trả hàng, audit log hay notification. Bước tiếp theo nên quay lại Customer để persist giỏ hàng qua refresh hoặc bổ sung thông tin giao hàng trước khi checkout.

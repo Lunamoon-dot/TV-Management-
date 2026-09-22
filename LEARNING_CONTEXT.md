@@ -143,6 +143,8 @@ Ngày 22/09/2026: bài 25 order status foundation: thêm enum Pending/Confirmed/
 
 Ngày 22/09/2026: bài 26 Admin order status: thêm `/api/admin/orders` và PUT status, bảo vệ role Admin + CSRF; transition tối thiểu Pending→Confirmed/Cancelled, Confirmed→Shipped/Cancelled, Shipped→Completed, terminal không đổi. React thêm `/admin/orders`, sidebar, bảng đơn và action tương ứng. Backend/frontend build, lint, 39 test đạt. Integration test Customer 403, Admin list được, transition sai 400, chuỗi hợp lệ 204 và Customer thấy Completed; dữ liệu test đã dọn. Xem `lessons/26-admin-order-status.md`.
 
+Ngày 22/09/2026: bài 27 cancel/restock: AdminOrdersController dùng transaction Serializable, Include OrderItems→Product; khi chuyển sang Cancelled cộng lại từng Quantity trước khi lưu status. Transition terminal chặn hủy lặp nên không hoàn stock hai lần. Backend build 0 warning/error; frontend lint/build và 39 test giữ nguyên. Integration test xác nhận Pending→Completed 400, Confirmed→Cancelled 204, lần hủy tiếp 400, Customer thấy Cancelled và stock trở về đúng giá trị ban đầu; dữ liệu test đã dọn. Xem `lessons/27-cancel-order-restock.md`.
+
 Bài 9: frontend có Trang trước/Trang sau, Axios params page động/pageSize=2 để thực hành trên 3 TV. Store requestedPage giữ trang cho retry lỗi; chưa persist/đồng bộ URL. Backend không đổi. Build/lint và 5 test store đạt. Hướng dẫn lessons/09-react-pagination.md.
 
 Bài 10 đã thêm tìm tên TV từ React: draftSearch useState, search áp dụng trong Zustand, submit reset page1, giữ từ khóa khi phân trang/retry, clear reset trang1. Axios gửi params search, backend giữ nguyên. Build/lint và 6 test đạt; API local tìm LG và không khớp đạt. Bài lessons/10-react-search.md.
