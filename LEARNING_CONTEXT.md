@@ -66,6 +66,10 @@ Customer có thể tự hủy đơn `Pending` từ trang chi tiết. Backend l�
 
 Product có thêm ImageUrl, ScreenSizeInches và Resolution xuyên suốt SQL, EF, DTO, Admin form và Customer UI. Cột entity nullable để không bịa dữ liệu cho TV legacy; create/update request bắt buộc và được kiểm tra ở Zod lẫn backend. Hiện ảnh là URL ngoài, chưa có upload hoặc object storage.
 
+## Tiến độ Payment — bài 33
+
+Order đã tách PaymentMethod và PaymentStatus khỏi OrderStatus. Customer chọn COD hoặc chuyển khoản; đơn mới luôn Unpaid và client không được gửi trạng thái thanh toán. EF lưu enum dạng chuỗi. Migration backfill đơn cũ bằng CashOnDelivery/Unpaid sau khi review và sửa default chuỗi rỗng do EF sinh tự động.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

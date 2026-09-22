@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { getOrders } from '../api/orders'
 import type { OrderPageResponse } from '../types'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
+import { PaymentSummary } from '../components/PaymentSummary'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
@@ -48,6 +49,7 @@ export function OrderHistoryPage() {
               <div>
                 <p className="text-lg font-semibold">Đơn #{order.id}</p>
                 <div className="mt-2"><OrderStatusBadge status={order.status} /></div>
+                <p className="mt-2 text-sm text-[#52645e]"><PaymentSummary method={order.paymentMethod} status={order.paymentStatus} /></p>
                 <p className="mt-1 text-sm text-[#52645e]">{dateTime.format(new Date(order.createdAt))} · {order.items.length} dòng sản phẩm</p>
               </div>
               <div className="sm:text-right">

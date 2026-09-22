@@ -1,10 +1,17 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using nothing.Models;
 
 namespace nothing.Features.Orders;
 
 public class CreateOrderRequest
 {
     public Guid CheckoutId { get; set; }
+
+    [Required]
+    [EnumDataType(typeof(PaymentMethod))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public PaymentMethod? PaymentMethod { get; set; }
 
     [Required]
     [StringLength(100, MinimumLength = 2)]

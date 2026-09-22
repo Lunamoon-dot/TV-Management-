@@ -151,3 +151,7 @@ Customer đã tự hủy được đơn Pending; đơn không thuộc tài kho�
 ## Tiến độ Catalog — bài32
 
 Catalog đã có URL ảnh, kích thước màn hình và độ phân giải; Admin tạo/sửa bằng form Zod, Customer thấy ảnh và thông số ở card/chi tiết. Migration giữ field nullable cho sản phẩm cũ, còn request mới bắt buộc dữ liệu. Chưa có upload ảnh, object storage hoặc bộ thông số động theo danh mục.
+
+## Tiến độ Payment — bài33
+
+Đơn hàng đã lưu PaymentMethod (COD/chuyển khoản) và PaymentStatus tách biệt với trạng thái giao hàng. Customer chọn phương thức khi checkout và xem lại trong lịch sử/chi tiết; mọi đơn mới bắt đầu Unpaid. Chưa có giao dịch thanh toán, webhook, mã tham chiếu hoặc quy trình xác minh Paid.

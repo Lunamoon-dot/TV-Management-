@@ -3,6 +3,7 @@ export interface CreateOrderRequest {
   recipientName: string
   phoneNumber: string
   shippingAddress: string
+  paymentMethod: PaymentMethod
   items: Array<{
     productId: number
     quantity: number
@@ -25,11 +26,15 @@ export interface OrderResponse {
   phoneNumber: string
   shippingAddress: string
   status: OrderStatus
+  paymentMethod: PaymentMethod
+  paymentStatus: PaymentStatus
   totalAmount: number
   items: OrderItemResponse[]
 }
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Completed' | 'Cancelled'
+export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer'
+export type PaymentStatus = 'Unpaid' | 'Paid'
 
 export interface OrderPageResponse {
   items: OrderResponse[]

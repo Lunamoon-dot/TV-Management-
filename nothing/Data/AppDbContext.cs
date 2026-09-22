@@ -90,6 +90,18 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasMaxLength(20)
             .IsRequired();
 
+        modelBuilder.Entity<Order>()
+            .Property(order => order.PaymentMethod)
+            .HasConversion<string>()
+            .HasMaxLength(30)
+            .IsRequired();
+
+        modelBuilder.Entity<Order>()
+            .Property(order => order.PaymentStatus)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .IsRequired();
+
         modelBuilder.Entity<OrderItem>()
             .HasOne(item => item.Order)
             .WithMany(order => order.Items)

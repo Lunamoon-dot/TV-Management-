@@ -73,6 +73,8 @@ public class OrdersController : ControllerBase
                 PhoneNumber = order.PhoneNumber,
                 ShippingAddress = order.ShippingAddress,
                 Status = order.Status,
+                PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.PaymentStatus,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -115,6 +117,8 @@ public class OrdersController : ControllerBase
                 PhoneNumber = order.PhoneNumber,
                 ShippingAddress = order.ShippingAddress,
                 Status = order.Status,
+                PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.PaymentStatus,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -189,7 +193,8 @@ public class OrdersController : ControllerBase
             CreatedAt = DateTimeOffset.UtcNow,
             RecipientName = request.RecipientName.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
-            ShippingAddress = request.ShippingAddress.Trim()
+            ShippingAddress = request.ShippingAddress.Trim(),
+            PaymentMethod = request.PaymentMethod!.Value
         };
 
         foreach (var requestedItem in requestedItems)
@@ -239,6 +244,8 @@ public class OrdersController : ControllerBase
             PhoneNumber = order.PhoneNumber,
             ShippingAddress = order.ShippingAddress,
             Status = order.Status,
+            PaymentMethod = order.PaymentMethod,
+            PaymentStatus = order.PaymentStatus,
             TotalAmount = order.TotalAmount,
             Items = order.Items.Select(item => new OrderItemResponse
             {

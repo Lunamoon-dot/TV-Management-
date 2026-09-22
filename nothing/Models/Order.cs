@@ -20,6 +20,10 @@ public class Order
 
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.CashOnDelivery;
+
+    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
+
     public decimal TotalAmount { get; set; }
 
     public List<OrderItem> Items { get; set; } = [];

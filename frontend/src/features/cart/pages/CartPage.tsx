@@ -12,6 +12,7 @@ const emptyCheckout: CheckoutFormInput = {
   recipientName: '',
   phoneNumber: '',
   shippingAddress: '',
+  paymentMethod: 'CashOnDelivery',
 }
 
 export function CartPage() {
@@ -132,6 +133,15 @@ export function CartPage() {
             onChange={event => setCheckoutDetails(current => ({ ...current, shippingAddress: event.target.value }))}
             className="mt-2 w-full resize-y rounded-md border border-[#cbd3cd] px-3 py-2" />
           {fieldErrors.shippingAddress && <p className="mt-1 text-sm text-red-800">{fieldErrors.shippingAddress}</p>}
+
+          <label className="mt-4 block text-sm font-semibold" htmlFor="paymentMethod">Phương thức thanh toán</label>
+          <select id="paymentMethod" value={checkoutDetails.paymentMethod}
+            onChange={event => setCheckoutDetails(current => ({ ...current, paymentMethod: event.target.value as CheckoutFormInput['paymentMethod'] }))}
+            className="mt-2 w-full rounded-md border border-[#cbd3cd] bg-white px-3 py-2">
+            <option value="CashOnDelivery">Thanh toán khi nhận hàng</option>
+            <option value="BankTransfer">Chuyển khoản ngân hàng</option>
+          </select>
+          {checkoutDetails.paymentMethod === 'BankTransfer' && <p className="mt-2 text-sm text-[#52645e]">Thông tin chuyển khoản sẽ được bổ sung ở bài thanh toán tiếp theo.</p>}
 
           <button type="submit" disabled={busy || session.status === 'loading'}
             className="mt-6 w-full cursor-pointer rounded-md bg-[#254c40] px-6 py-3 text-white disabled:cursor-wait disabled:opacity-60">

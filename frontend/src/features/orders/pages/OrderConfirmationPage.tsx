@@ -4,6 +4,7 @@ import { isAuthenticationError, isNotFoundError, isValidationError } from '../..
 import { cancelOrder, getOrderById } from '../api/orders'
 import type { OrderResponse } from '../types'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
+import { PaymentSummary } from '../components/PaymentSummary'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
@@ -90,6 +91,7 @@ function OrderDetails({ id }: { id: number }) {
         <div><dt className="font-semibold">Người nhận</dt><dd className="mt-1 text-[#52645e]">{order.recipientName}</dd></div>
         <div><dt className="font-semibold">Số điện thoại</dt><dd className="mt-1 text-[#52645e]">{order.phoneNumber}</dd></div>
         <div><dt className="font-semibold">Địa chỉ</dt><dd className="mt-1 whitespace-pre-wrap text-[#52645e]">{order.shippingAddress}</dd></div>
+        <div><dt className="font-semibold">Thanh toán</dt><dd className="mt-1 text-[#52645e]"><PaymentSummary method={order.paymentMethod} status={order.paymentStatus} /></dd></div>
       </dl>
     </section>
     <section className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-6">

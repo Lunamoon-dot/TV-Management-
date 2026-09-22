@@ -34,10 +34,10 @@ try {
 
     $csrf = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $session1).token
     $checkoutId = [guid]::NewGuid().ToString()
-    $orderBody = @{ checkoutId=$checkoutId; recipientName='Nguyen Van Test'; phoneNumber='0901234567'; shippingAddress='123 Duong Test, Quan 1'; items=@(@{ productId=$productId; quantity=1 }) } | ConvertTo-Json -Depth 4
+    $orderBody = @{ checkoutId=$checkoutId; paymentMethod='BankTransfer'; recipientName='Nguyen Van Test'; phoneNumber='0901234567'; shippingAddress='123 Duong Test, Quan 1'; items=@(@{ productId=$productId; quantity=1 }) } | ConvertTo-Json -Depth 4
     $created = Invoke-RestMethod "$BaseUrl/api/orders" -WebSession $session1 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$csrf } -Body $orderBody
     $orderId = $created.id
-    if ($orderId -le 0 -or $created.status -ne 'Pending' -or $created.recipientName -ne 'Nguyen Van Test') { throw 'Order was not created with correct shipping details and Pending status.' }
+    if ($orderId -le 0 -or $created.status -ne 'Pending' -or $created.paymentMethod -ne 'BankTransfer' -or $created.paymentStatus -ne 'Unpaid' -or $created.recipientName -ne 'Nguyen Van Test') { throw 'Order was not created with correct shipping, payment and status details.' }
     Write-Output "PASS: owner created order #$orderId"
 
     $replayed = Invoke-RestMethod "$BaseUrl/api/orders" -WebSession $session1 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$csrf } -Body $orderBody
