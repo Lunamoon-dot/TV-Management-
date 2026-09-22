@@ -39,6 +39,8 @@ public class AdminOrdersController : ControllerBase
                 CustomerEmail = order.Customer.Email ?? string.Empty,
                 CreatedAt = order.CreatedAt,
                 Status = order.Status,
+                PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.PaymentStatus,
                 TotalAmount = order.TotalAmount,
                 ItemCount = order.Items.Count
             })
@@ -51,6 +53,36 @@ public class AdminOrdersController : ControllerBase
             Page = query.Page,
             PageSize = query.PageSize
         });
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPut("{id:int}/payment-status")]
+    public async Task<IActionResult> UpdatePaymentStatus(
+        int id,
+        UpdatePaymentStatusRequest request,
+        CancellationToken cancellationToken)
+    {
+        var order = await _context.Orders
+            .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
+        if (order is null) return NotFound();
+
+        if (request.Status != PaymentStatus.Paid)
+        {
+            ModelState.AddModelError(nameof(request.Status), "Payment can only be marked as Paid.");
+            return ValidationProblem(ModelState);
+        }
+
+        if (order.Status == OrderStatus.Cancelled)
+        {
+            ModelState.AddModelError(nameof(request.Status), "A cancelled order cannot be marked as paid.");
+            return ValidationProblem(ModelState);
+        }
+
+        if (order.PaymentStatus == PaymentStatus.Paid) return NoContent();
+
+        order.PaymentStatus = PaymentStatus.Paid;
+        await _context.SaveChangesAsync(cancellationToken);
+        return NoContent();
     }
 
     [ValidateAntiForgeryToken]

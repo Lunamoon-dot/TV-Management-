@@ -155,3 +155,7 @@ Catalog đã có URL ảnh, kích thước màn hình và độ phân giải; Ad
 ## Tiến độ Payment — bài33
 
 Đơn hàng đã lưu PaymentMethod (COD/chuyển khoản) và PaymentStatus tách biệt với trạng thái giao hàng. Customer chọn phương thức khi checkout và xem lại trong lịch sử/chi tiết; mọi đơn mới bắt đầu Unpaid. Chưa có giao dịch thanh toán, webhook, mã tham chiếu hoặc quy trình xác minh Paid.
+
+## Tiến độ Payment — bài34
+
+Admin đã xác nhận thanh toán thủ công từ Unpaid sang Paid; endpoint có role, CSRF và idempotent khi gọi lặp. Customer thấy kết quả nhưng không có quyền thay đổi. Đơn Paid không thể hủy khi chưa có refund workflow. Chưa có provider transaction, webhook, chữ ký, đối soát tự động hoặc hoàn tiền.

@@ -78,7 +78,7 @@ function OrderDetails({ id }: { id: number }) {
     <p className="text-xs font-bold tracking-[2px] text-[#436b5e]">TV STORE / ĐƠN HÀNG</p>
     <h1 className="mt-3 text-3xl font-bold sm:text-5xl">Đơn hàng #{order.id}</h1>
     <div className="mt-5 flex flex-wrap items-center gap-3"><OrderStatusBadge status={order.status} /><span className="text-[#52645e]">{dateTime.format(new Date(order.createdAt))}</span></div>
-    {order.status === 'Pending' && <div className="mt-6">
+    {order.status === 'Pending' && order.paymentStatus === 'Unpaid' && <div className="mt-6">
       <button type="button" disabled={cancelling} onClick={() => void cancel(order)}
         className="cursor-pointer rounded-md border border-red-800 px-4 py-2 text-red-800 disabled:cursor-wait disabled:opacity-60">
         {cancelling ? 'Đang hủy…' : 'Hủy đơn hàng'}

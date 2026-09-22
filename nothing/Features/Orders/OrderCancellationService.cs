@@ -52,6 +52,9 @@ public class OrderCancellationService
             .FirstOrDefaultAsync(cancellationToken);
         if (order is null) return CancelOrderResult.NotFound;
 
+        if (order.PaymentStatus == PaymentStatus.Paid)
+            return CancelOrderResult.InvalidStatus;
+
         var canCancel = order.Status == OrderStatus.Pending
             || allowConfirmed && order.Status == OrderStatus.Confirmed;
         if (!canCancel) return CancelOrderResult.InvalidStatus;

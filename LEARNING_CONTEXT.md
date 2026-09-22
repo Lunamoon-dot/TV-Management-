@@ -70,6 +70,10 @@ Product có thêm ImageUrl, ScreenSizeInches và Resolution xuyên suốt SQL, E
 
 Order đã tách PaymentMethod và PaymentStatus khỏi OrderStatus. Customer chọn COD hoặc chuyển khoản; đơn mới luôn Unpaid và client không được gửi trạng thái thanh toán. EF lưu enum dạng chuỗi. Migration backfill đơn cũ bằng CashOnDelivery/Unpaid sau khi review và sửa default chuỗi rỗng do EF sinh tự động.
 
+## Tiến độ Payment — bài 34
+
+Admin có thể xác nhận Unpaid thành Paid qua endpoint role Admin + CSRF; gọi lặp lại an toàn. Customer chỉ đọc kết quả và không gọi được endpoint. Đơn Paid bị chặn hủy cho đến khi có nghiệp vụ refund. Đây vẫn là đối soát thủ công, chưa phải tích hợp cổng thanh toán hoặc webhook.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

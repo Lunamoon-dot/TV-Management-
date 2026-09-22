@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { OrderStatusBadge } from '../../orders/components/OrderStatusBadge'
+import { PaymentSummary } from '../../orders/components/PaymentSummary'
 import type { OrderStatus } from '../../orders/types'
-import { getAdminOrders, updateOrderStatus, type AdminOrderPageResponse } from '../api/orders'
+import { getAdminOrders, updateOrderStatus, updatePaymentStatus, type AdminOrderPageResponse } from '../api/orders'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' })
@@ -51,6 +52,22 @@ export function AdminOrdersPage() {
     }
   }
 
+  async function markPaid(id: number) {
+    if (updatingId !== undefined) return
+    setUpdatingId(id)
+    setError('')
+    try {
+      await updatePaymentStatus(id, 'Paid')
+      setState(current => current.status === 'success'
+        ? { status: 'success', data: { ...current.data, items: current.data.items.map(order => order.id === id ? { ...order, paymentStatus: 'Paid' } : order) } }
+        : current)
+    } catch {
+      setError('Không xác nhận được thanh toán. Hãy tải lại danh sách và thử lại.')
+    } finally {
+      setUpdatingId(undefined)
+    }
+  }
+
   return <main className="mx-auto max-w-6xl px-6 py-10 sm:py-16">
     <p className="text-xs font-bold tracking-[2px] text-[#436b5e]">QUẢN TRỊ / ĐƠN HÀNG</p>
     <h1 className="mt-3 text-3xl font-bold sm:text-5xl">Xử lý đơn hàng.</h1>
@@ -68,14 +85,19 @@ export function AdminOrdersPage() {
       {state.data.items.length === 0 ? <p className="mt-8">Chưa có đơn hàng.</p> : <div className="mt-8 overflow-x-auto rounded-lg border border-[#d2d9d4] bg-white">
         <table className="w-full min-w-[900px] text-left">
           <thead className="border-b border-[#d2d9d4] bg-[#f7f8f6] text-sm text-[#52645e]"><tr>
-            <th className="px-5 py-4">Đơn</th><th className="px-5 py-4">Khách hàng</th><th className="px-5 py-4">Tổng tiền</th><th className="px-5 py-4">Trạng thái</th><th className="px-5 py-4">Thao tác</th>
+            <th className="px-5 py-4">Đơn</th><th className="px-5 py-4">Khách hàng</th><th className="px-5 py-4">Tổng tiền</th><th className="px-5 py-4">Thanh toán</th><th className="px-5 py-4">Trạng thái</th><th className="px-5 py-4">Thao tác</th>
           </tr></thead>
           <tbody className="divide-y divide-[#e1e5e2]">{state.data.items.map(order => <tr key={order.id}>
             <td className="px-5 py-4"><p className="font-semibold">#{order.id}</p><p className="mt-1 text-xs text-[#52645e]">{dateTime.format(new Date(order.createdAt))} · {order.itemCount} dòng</p></td>
             <td className="px-5 py-4">{order.customerEmail}</td>
             <td className="px-5 py-4 font-semibold">{money.format(order.totalAmount)}</td>
+            <td className="px-5 py-4 text-sm"><PaymentSummary method={order.paymentMethod} status={order.paymentStatus} />
+              {order.paymentStatus === 'Unpaid' && order.status !== 'Cancelled' && <button type="button" disabled={updatingId !== undefined}
+                className="mt-2 block cursor-pointer underline disabled:cursor-wait disabled:opacity-40"
+                onClick={() => void markPaid(order.id)}>{order.paymentMethod === 'BankTransfer' ? 'Xác nhận chuyển khoản' : 'Xác nhận đã thu tiền'}</button>}
+            </td>
             <td className="px-5 py-4"><OrderStatusBadge status={order.status} /></td>
-            <td className="px-5 py-4"><div className="flex gap-3">{(actions[order.status] ?? []).map(action => <button key={action.status} type="button" disabled={updatingId !== undefined}
+            <td className="px-5 py-4"><div className="flex gap-3">{(actions[order.status] ?? []).filter(action => action.status !== 'Cancelled' || order.paymentStatus === 'Unpaid').map(action => <button key={action.status} type="button" disabled={updatingId !== undefined}
               className="cursor-pointer underline disabled:cursor-wait disabled:opacity-40" onClick={() => void changeStatus(order.id, action.status)}>{action.label}</button>)}</div></td>
           </tr>)}</tbody>
         </table>
