@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
 import type { ProductResponse } from '../../products/types'
 import type { CartItem } from '../types'
 
@@ -10,7 +11,7 @@ interface CartStore {
   clear: () => void
 }
 
-export const useCartStore = create<CartStore>()((set) => ({
+export const useCartStore = create<CartStore>()(persist((set) => ({
   items: [],
   addProduct: (product) => set((state) => {
     if (product.stock <= 0) return state
@@ -45,6 +46,11 @@ export const useCartStore = create<CartStore>()((set) => ({
     items: state.items.filter(item => item.productId !== productId),
   })),
   clear: () => set({ items: [] }),
+}), {
+  name: 'tv-store-cart',
+  version: 1,
+  storage: createJSONStorage(() => localStorage),
+  partialize: state => ({ items: state.items }),
 }))
 
 export function getCartTotal(items: CartItem[]): number {

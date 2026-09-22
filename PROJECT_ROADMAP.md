@@ -131,3 +131,7 @@ Admin có `/admin/orders`, API phân trang và PUT status với CSRF. Backend ch
 ## Tiến độ hủy đơn — bài27
 
 Hủy đơn từ Pending/Confirmed đã hoàn lại tồn kho và đổi trạng thái trong cùng transaction Serializable. Hủy lặp bị chặn nên không cộng kho hai lần; Shipped không thể hủy trong workflow hiện tại. Chưa có hoàn tiền, trả hàng, audit log hay notification. Bước tiếp theo nên quay lại Customer để persist giỏ hàng qua refresh hoặc bổ sung thông tin giao hàng trước khi checkout.
+
+## Tiến độ Cart — bài28
+
+Cart được persist trong localStorage bằng Zustand middleware và sống qua refresh; chỉ items được lưu, clear sau checkout cũng xóa storage. Client snapshot vẫn không phải nguồn giá/tồn kho đáng tin. Bước tiếp theo nên thêm thông tin người nhận và địa chỉ giao hàng vào checkout/order trước khi mở rộng các module khác.
