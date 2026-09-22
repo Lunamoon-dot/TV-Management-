@@ -147,3 +147,7 @@ Tạo đơn đã idempotent theo cặp Customer và CheckoutId. Retry cùng khó
 ## Tiến độ Customer Orders — bài31
 
 Customer đã tự hủy được đơn Pending; đơn không thuộc tài khoản trả 404, hủy lặp bị chặn và tồn kho được hoàn đúng một lần. Admin và Customer dùng chung `OrderCancellationService`, nhưng có quy tắc trạng thái khác nhau. Bước tiếp theo nên làm catalog giống sản phẩm thật hơn bằng ảnh và thông số TV trước khi mô phỏng thanh toán.
+
+## Tiến độ Catalog — bài32
+
+Catalog đã có URL ảnh, kích thước màn hình và độ phân giải; Admin tạo/sửa bằng form Zod, Customer thấy ảnh và thông số ở card/chi tiết. Migration giữ field nullable cho sản phẩm cũ, còn request mới bắt buộc dữ liệu. Chưa có upload ảnh, object storage hoặc bộ thông số động theo danh mục.

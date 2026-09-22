@@ -42,6 +42,18 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .Property(product => product.Price)
             .HasPrecision(18, 2);
 
+        modelBuilder.Entity<Product>()
+            .Property(product => product.ImageUrl)
+            .HasMaxLength(2048);
+
+        modelBuilder.Entity<Product>()
+            .Property(product => product.ScreenSizeInches)
+            .HasPrecision(5, 1);
+
+        modelBuilder.Entity<Product>()
+            .Property(product => product.Resolution)
+            .HasMaxLength(50);
+
         modelBuilder.Entity<Order>()
             .HasOne(order => order.Customer)
             .WithMany()

@@ -8,6 +8,15 @@ const requiredNumber = (message: string) => z.string()
 
 export const createProductSchema = z.object({
   name: z.string().trim().min(1, 'Vui lòng nhập tên TV.'),
+  imageUrl: z.string().trim()
+    .min(1, 'Vui lòng nhập URL ảnh.')
+    .max(2048, 'URL ảnh quá dài.')
+    .url('URL ảnh không hợp lệ.')
+    .refine(value => value.startsWith('http://') || value.startsWith('https://'), 'URL ảnh phải dùng HTTP hoặc HTTPS.'),
+  screenSizeInches: requiredNumber('Vui lòng nhập kích thước màn hình.')
+    .pipe(z.number().min(1, 'Kích thước phải từ 1 inch.').max(200, 'Kích thước tối đa 200 inch.')
+      .multipleOf(0.1, 'Kích thước chỉ được có tối đa 1 chữ số thập phân.')),
+  resolution: z.string().trim().min(1, 'Vui lòng nhập độ phân giải.').max(50, 'Độ phân giải tối đa 50 ký tự.'),
   brandId: requiredNumber('Vui lòng chọn hãng TV.')
     .pipe(z.number().int('Hãng TV không hợp lệ.').min(1, 'Vui lòng chọn hãng TV.').max(2147483647, 'Hãng TV không hợp lệ.')),
   price: requiredNumber('Vui lòng nhập giá.')

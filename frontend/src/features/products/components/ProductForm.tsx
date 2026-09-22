@@ -105,6 +105,27 @@ export function ProductForm({ initialValues, submitLabel, failureMessage, onSubm
           <FieldErrors id="brandId-errors" messages={errors.brandId} />
         </div>
         <div>
+          <label htmlFor="imageUrl" className="font-medium">URL ảnh TV</label>
+          <input id="imageUrl" type="url" required value={form.imageUrl} className={inputClass}
+            aria-invalid={Boolean(errors.imageUrl)} aria-describedby={errors.imageUrl ? 'imageUrl-errors' : undefined}
+            onChange={event => setForm({ ...form, imageUrl: event.target.value })} />
+          <FieldErrors id="imageUrl-errors" messages={errors.imageUrl} />
+        </div>
+        <div>
+          <label htmlFor="screenSizeInches" className="font-medium">Kích thước màn hình (inch)</label>
+          <input id="screenSizeInches" type="number" required min="1" max="200" step="0.1" value={form.screenSizeInches} className={inputClass}
+            aria-invalid={Boolean(errors.screenSizeInches)} aria-describedby={errors.screenSizeInches ? 'screenSizeInches-errors' : undefined}
+            onChange={event => setForm({ ...form, screenSizeInches: event.target.value })} />
+          <FieldErrors id="screenSizeInches-errors" messages={errors.screenSizeInches} />
+        </div>
+        <div>
+          <label htmlFor="resolution" className="font-medium">Độ phân giải</label>
+          <input id="resolution" required placeholder="Ví dụ: 4K UHD" value={form.resolution} className={inputClass}
+            aria-invalid={Boolean(errors.resolution)} aria-describedby={errors.resolution ? 'resolution-errors' : undefined}
+            onChange={event => setForm({ ...form, resolution: event.target.value })} />
+          <FieldErrors id="resolution-errors" messages={errors.resolution} />
+        </div>
+        <div>
           <label htmlFor="price" className="font-medium">Giá (VND)</label>
           <input id="price" type="number" required min="0.01" step="0.01" value={form.price} className={inputClass}
             aria-invalid={Boolean(errors.price)} aria-describedby={errors.price ? 'price-errors' : undefined}

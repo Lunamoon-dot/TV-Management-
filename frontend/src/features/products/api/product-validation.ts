@@ -6,7 +6,7 @@ export function readProductValidation(data: unknown): ProductFieldErrors {
   if (!data || typeof data !== 'object' || !('errors' in data)) return {}
   const errors = data.errors
   if (!errors || typeof errors !== 'object') return {}
-  const fields = ['name', 'brandId', 'price', 'stock'] as const
+  const fields = ['name', 'imageUrl', 'screenSizeInches', 'resolution', 'brandId', 'price', 'stock'] as const
   const result: ProductFieldErrors = {}
   for (const [key, messages] of Object.entries(errors)) {
     const field = fields.find(name => name.toLowerCase() === key.replace(/^\$\./, '').toLowerCase())

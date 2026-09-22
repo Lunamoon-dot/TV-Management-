@@ -62,6 +62,10 @@ Checkout có `CheckoutId` UUID và unique index theo `(CustomerId, CheckoutId)`.
 
 Customer có thể tự hủy đơn `Pending` từ trang chi tiết. Backend lấy CustomerId từ cookie, trả 404 cho đơn người khác, hoàn kho và đổi trạng thái trong cùng transaction. `OrderCancellationService` được tạo vì Admin và Customer thật sự dùng chung nghiệp vụ hoàn kho; controller tiếp tục chịu trách nhiệm auth và HTTP response.
 
+## Tiến độ Catalog — bài 32
+
+Product có thêm ImageUrl, ScreenSizeInches và Resolution xuyên suốt SQL, EF, DTO, Admin form và Customer UI. Cột entity nullable để không bịa dữ liệu cho TV legacy; create/update request bắt buộc và được kiểm tra ở Zod lẫn backend. Hiện ảnh là URL ngoài, chưa có upload hoặc object storage.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

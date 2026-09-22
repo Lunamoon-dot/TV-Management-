@@ -5,6 +5,9 @@ import type { ProductResponse } from '../../products/types'
 const product: ProductResponse = {
   id: 1,
   name: 'Samsung 4K 55 inch',
+  imageUrl: 'https://example.test/tv.jpg',
+  screenSizeInches: 55,
+  resolution: '4K UHD',
   brandId: 2,
   brand: 'Samsung',
   price: 11990000,

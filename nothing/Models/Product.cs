@@ -6,6 +6,12 @@ public class Product
 
     public string Name { get; set; } = string.Empty;
 
+    public string? ImageUrl { get; set; }
+
+    public decimal? ScreenSizeInches { get; set; }
+
+    public string? Resolution { get; set; }
+
     public int BrandId { get; set; }
 
     public Brand Brand { get; set; } = null!;

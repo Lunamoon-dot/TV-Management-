@@ -50,7 +50,15 @@ function EditProduct({ id }: { id: number }) {
 
   const { product } = state
   return <ProductForm
-    initialValues={{ name: product.name, brandId: String(product.brandId), price: String(product.price), stock: String(product.stock) }}
+    initialValues={{
+      name: product.name,
+      imageUrl: product.imageUrl ?? '',
+      screenSizeInches: product.screenSizeInches === null ? '' : String(product.screenSizeInches),
+      resolution: product.resolution ?? '',
+      brandId: String(product.brandId),
+      price: String(product.price),
+      stock: String(product.stock),
+    }}
     submitLabel="Lưu thay đổi"
     failureMessage="Chưa xác nhận được kết quả cập nhật. Hãy kiểm tra trang chi tiết trước khi gửi lại."
     onSubmit={async request => {

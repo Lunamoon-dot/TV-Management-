@@ -8,7 +8,7 @@ export function CreateProductPage() {
     <Link to="/admin/products" className="text-[#254c40] underline underline-offset-4">← Về danh sách quản lý</Link>
     <h1 className="mt-8 text-3xl font-bold">Thêm TV</h1>
     <ProductForm
-      initialValues={{ name: '', brandId: '', price: '', stock: '' }}
+      initialValues={{ name: '', imageUrl: '', screenSizeInches: '', resolution: '', brandId: '', price: '', stock: '' }}
       submitLabel="Tạo TV"
       failureMessage="Chưa xác nhận được kết quả tạo TV. Hãy kiểm tra danh sách trước khi gửi lại để tránh tạo trùng."
       onSubmit={async request => {

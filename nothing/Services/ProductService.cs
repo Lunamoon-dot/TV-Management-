@@ -40,6 +40,9 @@ public class ProductService
             {
                 Id = product.Id,
                 Name = product.Name,
+                ImageUrl = product.ImageUrl,
+                ScreenSizeInches = product.ScreenSizeInches,
+                Resolution = product.Resolution,
                 BrandId = product.BrandId,
                 Brand = product.Brand.Name,
                 Price = product.Price,

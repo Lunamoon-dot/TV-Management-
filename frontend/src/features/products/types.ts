@@ -1,6 +1,9 @@
 export interface ProductResponse {
   id: number
   name: string
+  imageUrl: string | null
+  screenSizeInches: number | null
+  resolution: string | null
   brandId: number
   brand: string
   price: number

@@ -1,13 +1,13 @@
 import { expect, it } from 'vitest'
 import { createProductSchema } from './create-product'
 
-const valid = { name: '  TV Samsung  ', brandId: '2', price: '11990000', stock: '0' }
+const valid = { name: '  TV Samsung  ', imageUrl: ' https://example.test/tv.jpg ', screenSizeInches: '55', resolution: ' 4K UHD ', brandId: '2', price: '11990000', stock: '0' }
 
 it('trims the name and converts numeric strings into the JSON request', () => {
-  expect(createProductSchema.parse(valid)).toEqual({ name: 'TV Samsung', brandId: 2, price: 11990000, stock: 0 })
+  expect(createProductSchema.parse(valid)).toEqual({ name: 'TV Samsung', imageUrl: 'https://example.test/tv.jpg', screenSizeInches: 55, resolution: '4K UHD', brandId: 2, price: 11990000, stock: 0 })
 })
 
-it.each(['name', 'brandId', 'price', 'stock'])('rejects blank %s instead of treating it as zero', field => {
+it.each(['name', 'imageUrl', 'screenSizeInches', 'resolution', 'brandId', 'price', 'stock'])('rejects blank %s instead of treating it as zero', field => {
   for (const value of ['', '   ']) {
     const parsed = createProductSchema.safeParse({ ...valid, [field]: value })
     expect(parsed.success).toBe(false)

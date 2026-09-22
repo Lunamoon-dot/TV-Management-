@@ -40,6 +40,9 @@ namespace nothing.Controllers
                 {
                     Id = product.Id,
                     Name = product.Name,
+                    ImageUrl = product.ImageUrl,
+                    ScreenSizeInches = product.ScreenSizeInches,
+                    Resolution = product.Resolution,
                     BrandId = product.BrandId,
                     Brand = product.Brand.Name,
                     Price = product.Price,
@@ -78,6 +81,9 @@ namespace nothing.Controllers
             }
 
             product.Name = request.Name.Trim();
+            product.ImageUrl = request.ImageUrl.Trim();
+            product.ScreenSizeInches = request.ScreenSizeInches;
+            product.Resolution = request.Resolution.Trim();
             product.BrandId = request.BrandId;
             product.Price = request.Price;
             product.Stock = request.Stock;
@@ -125,6 +131,9 @@ namespace nothing.Controllers
             var product = new Product
             {
                 Name = request.Name.Trim(),
+                ImageUrl = request.ImageUrl.Trim(),
+                ScreenSizeInches = request.ScreenSizeInches,
+                Resolution = request.Resolution.Trim(),
                 BrandId = brand.Id,
                 Brand = brand,
                 Price = request.Price,

@@ -55,8 +55,12 @@ function ProductDetails({ id }: { id: number }) {
   if (state.status !== 'success') return null
 
   const { product } = state
-  return <article className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-7 sm:p-10">
-    <p className="text-sm font-bold tracking-widest text-[#436b5e]">{product.brand}</p>
+  return <article className="mt-8 grid gap-8 rounded-lg border border-[#d9dfda] bg-white p-7 sm:p-10 lg:grid-cols-2">
+    <div>{product.imageUrl
+      ? <img src={product.imageUrl} alt={product.name} className="aspect-[4/3] w-full rounded-md object-contain" />
+      : <div className="flex aspect-[4/3] items-center justify-center rounded-md bg-[#eef1ee] text-[#52645e]">Chưa có ảnh</div>}
+    </div>
+    <div><p className="text-sm font-bold tracking-widest text-[#436b5e]">{product.brand}</p>
     <h1 className="mt-4 text-3xl font-bold sm:text-4xl">{product.name}</h1>
     <p className="mt-8 text-3xl font-semibold">{money.format(product.price)}</p>
     <button type="button" disabled={product.stock <= 0}
@@ -67,7 +71,10 @@ function ProductDetails({ id }: { id: number }) {
     <dl className="mt-8 grid grid-cols-[auto_1fr] gap-x-8 gap-y-3 text-[#52645e]">
       <dt>Mã sản phẩm</dt><dd>#{product.id}</dd>
       <dt>Hãng</dt><dd>{product.brand}</dd>
+      <dt>Kích thước</dt><dd>{product.screenSizeInches ? `${product.screenSizeInches} inch` : 'Chưa cập nhật'}</dd>
+      <dt>Độ phân giải</dt><dd>{product.resolution ?? 'Chưa cập nhật'}</dd>
       <dt>Tồn kho</dt><dd>{product.stock > 0 ? `${product.stock} sản phẩm` : 'Hết hàng'}</dd>
     </dl>
+    </div>
   </article>
 }

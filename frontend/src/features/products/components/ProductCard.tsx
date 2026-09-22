@@ -8,10 +8,14 @@ export function ProductCard({ product }: { product: ProductResponse }) {
   const addProduct = useCartStore(state => state.addProduct)
   return (
     <li className="rounded-lg border border-[#d9dfda] bg-white p-7">
+      <ProductImage product={product} />
       <p className="text-xs font-bold tracking-[2px] text-[#436b5e]">{product.brand}</p>
       <h2 className="mt-4 mb-7 text-xl leading-relaxed font-semibold">
         <Link to={`/products/${product.id}`} className="underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4">{product.name}</Link>
       </h2>
+      {(product.screenSizeInches || product.resolution) && <p className="mb-3 text-sm text-[#52645e]">
+        {[product.screenSizeInches && `${product.screenSizeInches} inch`, product.resolution].filter(Boolean).join(' · ')}
+      </p>}
       <p className="text-2xl font-semibold">{money.format(product.price)}</p>
       <p className="mt-3 text-sm text-[#52645e]">
         {product.stock > 0 ? `Còn ${product.stock} sản phẩm` : 'Hết hàng'}
@@ -23,4 +27,10 @@ export function ProductCard({ product }: { product: ProductResponse }) {
       </button>
     </li>
   )
+}
+
+function ProductImage({ product }: { product: ProductResponse }) {
+  return product.imageUrl
+    ? <img src={product.imageUrl} alt={product.name} className="mb-6 aspect-[4/3] w-full rounded-md object-contain" />
+    : <div className="mb-6 flex aspect-[4/3] items-center justify-center rounded-md bg-[#eef1ee] text-sm text-[#52645e]">Chưa có ảnh</div>
 }
