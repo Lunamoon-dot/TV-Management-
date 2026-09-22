@@ -20,3 +20,10 @@ export interface OrderResponse {
   totalAmount: number
   items: OrderItemResponse[]
 }
+
+export interface OrderPageResponse {
+  items: OrderResponse[]
+  totalCount: number
+  page: number
+  pageSize: number
+}

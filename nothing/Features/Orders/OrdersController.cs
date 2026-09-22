@@ -22,6 +22,83 @@ public class OrdersController : ControllerBase
         _userManager = userManager;
     }
 
+    [HttpGet]
+    public async Task<ActionResult<OrderPageResponse>> GetMine(
+        [FromQuery] OrderQueryRequest query,
+        CancellationToken cancellationToken)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (userId is null) return Unauthorized();
+
+        var orders = _context.Orders
+            .Where(order => order.CustomerId == userId);
+
+        var totalCount = await orders.CountAsync(cancellationToken);
+        var items = await orders
+            .OrderByDescending(order => order.CreatedAt)
+            .ThenByDescending(order => order.Id)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .Select(order => new OrderResponse
+            {
+                Id = order.Id,
+                CreatedAt = order.CreatedAt,
+                TotalAmount = order.TotalAmount,
+                Items = order.Items
+                    .OrderBy(item => item.Id)
+                    .Select(item => new OrderItemResponse
+                    {
+                        ProductId = item.ProductId,
+                        ProductName = item.ProductName,
+                        BrandName = item.BrandName,
+                        UnitPrice = item.UnitPrice,
+                        Quantity = item.Quantity,
+                        LineTotal = item.LineTotal
+                    }).ToList()
+            })
+            .ToListAsync(cancellationToken);
+
+        return Ok(new OrderPageResponse
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = query.Page,
+            PageSize = query.PageSize
+        });
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<OrderResponse>> GetById(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var userId = _userManager.GetUserId(User);
+        if (userId is null) return Unauthorized();
+
+        var order = await _context.Orders
+            .Where(order => order.Id == id && order.CustomerId == userId)
+            .Select(order => new OrderResponse
+            {
+                Id = order.Id,
+                CreatedAt = order.CreatedAt,
+                TotalAmount = order.TotalAmount,
+                Items = order.Items
+                    .OrderBy(item => item.Id)
+                    .Select(item => new OrderItemResponse
+                    {
+                        ProductId = item.ProductId,
+                        ProductName = item.ProductName,
+                        BrandName = item.BrandName,
+                        UnitPrice = item.UnitPrice,
+                        Quantity = item.Quantity,
+                        LineTotal = item.LineTotal
+                    }).ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return order is null ? NotFound() : Ok(order);
+    }
+
     [ValidateAntiForgeryToken]
     [HttpPost]
     public async Task<ActionResult<OrderResponse>> Create(

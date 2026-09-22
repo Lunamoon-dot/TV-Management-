@@ -36,7 +36,7 @@ export function CartPage() {
         items: items.map(item => ({ productId: item.productId, quantity: item.quantity })),
       })
       clear()
-      navigate(`/orders/${order.id}/confirmation`, { replace: true, state: { order } })
+      navigate(`/orders/${order.id}`, { replace: true })
     } catch (requestError: unknown) {
       if (isAuthenticationError(requestError)) {
         markAnonymous()

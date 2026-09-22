@@ -13,6 +13,8 @@ import { CustomerLayout } from './layouts/CustomerLayout'
 import { AdminLayout } from './layouts/AdminLayout'
 import { AdminDashboardPage } from '../features/admin/pages/AdminDashboardPage'
 import { AdminProductsPage } from '../features/admin/pages/AdminProductsPage'
+import { RequireAuthenticated } from '../features/auth/components/RequireAuthenticated'
+import { OrderHistoryPage } from '../features/orders/pages/OrderHistoryPage'
 
 export default function App() {
   const refresh = useAuthStore(state => state.refresh)
@@ -29,7 +31,8 @@ export default function App() {
         <Route path="/register" element={<AuthPage key="register" mode="register" />} />
         <Route path="/" element={<ProductsPage />} />
         <Route path="/cart" element={<CartPage />} />
-        <Route path="/orders/:id/confirmation" element={<OrderConfirmationPage />} />
+        <Route path="/orders" element={<RequireAuthenticated><OrderHistoryPage /></RequireAuthenticated>} />
+        <Route path="/orders/:id" element={<RequireAuthenticated><OrderConfirmationPage /></RequireAuthenticated>} />
         <Route path="/products/:id" element={<ProductDetailsPage />} />
         <Route path="*" element={<main className="mx-auto max-w-6xl px-6 py-16">
           <h1 className="mb-5 text-3xl font-bold">Trang không tồn tại</h1>
