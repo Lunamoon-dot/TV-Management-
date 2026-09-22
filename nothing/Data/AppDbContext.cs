@@ -49,6 +49,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Order>()
+            .HasIndex(order => new { order.CustomerId, order.CheckoutId })
+            .IsUnique()
+            .HasFilter("[CheckoutId] IS NOT NULL");
+
+        modelBuilder.Entity<Order>()
             .Property(order => order.TotalAmount)
             .HasPrecision(18, 2);
 

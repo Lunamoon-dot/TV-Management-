@@ -139,3 +139,7 @@ Cart được persist trong localStorage bằng Zustand middleware và sống qu
 ## Tiến độ Checkout — bài29
 
 Đơn hàng đã lưu snapshot tên người nhận, số điện thoại và địa chỉ giao hàng. Form giỏ hàng dùng Zod, API validate lại bằng DTO và dữ liệu được trả trong chi tiết đơn sau refresh. Chưa có address book hoặc nhiều bước checkout. Bước tiếp theo nên chống tạo đơn lặp khi người dùng double-click hoặc client retry request.
+
+## Tiến độ Checkout — bài30
+
+Tạo đơn đã idempotent theo cặp Customer và CheckoutId. Retry cùng khóa trả lại đơn cũ; SQL unique index bảo vệ dữ liệu và integration test xác nhận lịch sử chỉ có một đơn. Bước tiếp theo phù hợp là bổ sung ảnh/thông số cho catalog hoặc bắt đầu luồng thanh toán giả lập, tùy mục tiêu học ưu tiên.

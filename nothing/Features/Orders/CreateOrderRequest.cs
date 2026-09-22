@@ -4,6 +4,8 @@ namespace nothing.Features.Orders;
 
 public class CreateOrderRequest
 {
+    public Guid CheckoutId { get; set; }
+
     [Required]
     [StringLength(100, MinimumLength = 2)]
     public string RecipientName { get; set; } = string.Empty;

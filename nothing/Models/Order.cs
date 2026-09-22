@@ -8,6 +8,8 @@ public class Order
 
     public ApplicationUser Customer { get; set; } = null!;
 
+    public Guid? CheckoutId { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public string RecipientName { get; set; } = string.Empty;

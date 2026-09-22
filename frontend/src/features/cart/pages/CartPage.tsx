@@ -24,6 +24,7 @@ export function CartPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const inFlight = useRef(false)
+  const checkoutId = useRef(crypto.randomUUID())
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [checkoutDetails, setCheckoutDetails] = useState(emptyCheckout)
@@ -55,6 +56,7 @@ export function CartPage() {
     setFieldErrors({})
     try {
       const order = await createOrder({
+        checkoutId: checkoutId.current,
         ...parsed.data,
         items: items.map(item => ({ productId: item.productId, quantity: item.quantity })),
       })

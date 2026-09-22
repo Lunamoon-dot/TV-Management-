@@ -116,6 +116,8 @@ public class OrdersController : ControllerBase
         var user = await _userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
 
+        if (request.CheckoutId == Guid.Empty)
+            ModelState.AddModelError(nameof(request.CheckoutId), "Checkout id is required.");
         if (string.IsNullOrWhiteSpace(request.RecipientName))
             ModelState.AddModelError(nameof(request.RecipientName), "Recipient name is required.");
         if (string.IsNullOrWhiteSpace(request.PhoneNumber))
@@ -137,6 +139,17 @@ public class OrdersController : ControllerBase
             IsolationLevel.Serializable,
             cancellationToken);
 
+        var existingOrder = await _context.Orders
+            .Include(order => order.Items)
+            .FirstOrDefaultAsync(
+                order => order.CustomerId == user.Id && order.CheckoutId == request.CheckoutId,
+                cancellationToken);
+        if (existingOrder is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+            return Ok(ToResponse(existingOrder));
+        }
+
         var productIds = requestedItems.Select(item => item.ProductId).ToList();
         var products = await _context.Products
             .Include(product => product.Brand)
@@ -146,6 +159,7 @@ public class OrdersController : ControllerBase
         var order = new Order
         {
             CustomerId = user.Id,
+            CheckoutId = request.CheckoutId,
             CreatedAt = DateTimeOffset.UtcNow,
             RecipientName = request.RecipientName.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),

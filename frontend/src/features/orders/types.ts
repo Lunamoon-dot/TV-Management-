@@ -1,4 +1,5 @@
 export interface CreateOrderRequest {
+  checkoutId: string
   recipientName: string
   phoneNumber: string
   shippingAddress: string

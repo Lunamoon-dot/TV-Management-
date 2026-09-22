@@ -54,6 +54,10 @@ Ngày 12/09/2026, người học cung cấp `C:\Users\dell\E_disk\Captures\Pictu
 
 Checkout đã nhận tên người nhận, số điện thoại và địa chỉ giao hàng. React dùng Zod để báo lỗi theo field; ASP.NET bind vào `CreateOrderRequest` và validate lại; SQL lưu ba giá trị trực tiếp trên `Order` như snapshot. Trang chi tiết đơn đọc lại thông tin này sau refresh. Chưa tách sổ địa chỉ riêng vì hiện chưa có nhu cầu lưu nhiều địa chỉ cho một khách hàng.
 
+## Tiến độ checkout — bài 30
+
+Checkout có `CheckoutId` UUID và unique index theo `(CustomerId, CheckoutId)`. Gửi lại cùng request trả đơn đã tạo thay vì tạo đơn và trừ kho lần nữa. React giữ UUID ổn định bằng `useRef` trong vòng đời trang giỏ hàng. Chưa persist lần checkout đang chờ qua thao tác đóng tab/browser.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.
