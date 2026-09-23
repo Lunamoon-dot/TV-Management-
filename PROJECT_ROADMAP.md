@@ -203,3 +203,7 @@ EF SQL Server có transient retry và các transaction thủ công chạy bên t
 ## Tiến độ Production Auth — bài45
 
 Data Protection dùng application name `TvStore`. Development giữ key store mặc định; ngoài Development bắt buộc cấu hình `DataProtection__KeysPath` tới storage bền vững, nếu thiếu ứng dụng fail fast. Artifact Production đã được kiểm tra tạo key file và health check thành công. Khi chọn cloud còn phải cấu hình volume/shared store, quyền truy cập và mã hóa key at rest theo provider.
+
+## Tiến độ Observability — bài46
+
+Mọi response có `X-Correlation-ID`; server giữ ID client gửi nếu đúng whitelist hoặc tự sinh GUID, đặt vào `HttpContext.TraceIdentifier` và logging scope. Lỗi 500 trả cùng mã trong `ProblemDetails.traceId`, giúp nối lỗi phía client với log server. Chưa chọn log aggregation/APM provider hoặc chính sách retention.

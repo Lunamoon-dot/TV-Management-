@@ -16,6 +16,9 @@ foreach ($accept in @('application/json', 'text/html')) {
         $body.title -ne 'An unexpected error occurred.' -or
         $body.detail -ne 'Please try again later.' -or
         [string]::IsNullOrWhiteSpace($body.traceId)) { throw 'Unexpected error response.' }
+    if ($response.Headers['X-Correlation-ID'] -ne $body.traceId) {
+        throw 'ProblemDetails traceId does not match the response correlation ID.'
+    }
     $unexpected = @($body.PSObject.Properties.Name | Where-Object { $_ -notin @('type', 'title', 'status', 'detail', 'traceId') })
     if ($unexpected.Count -gt 0) { throw 'Unexpected fields in public error response.' }
     $traces += $body.traceId

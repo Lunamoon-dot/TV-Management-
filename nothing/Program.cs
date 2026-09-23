@@ -121,6 +121,7 @@ builder.Services.AddAntiforgery(options =>
 });
 
 var app = builder.Build();
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
