@@ -25,4 +25,5 @@ public class AdminOrderDetailsResponse
     public string? PaymentConfirmedByEmail { get; set; }
     public decimal TotalAmount { get; set; }
     public List<OrderItemResponse> Items { get; set; } = [];
+    public List<OrderStatusHistoryResponse> StatusHistory { get; set; } = [];
 }

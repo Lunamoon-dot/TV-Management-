@@ -31,4 +31,6 @@ public class Order
     public decimal TotalAmount { get; set; }
 
     public List<OrderItem> Items { get; set; } = [];
+
+    public List<OrderStatusHistory> StatusHistory { get; set; } = [];
 }

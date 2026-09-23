@@ -27,6 +27,14 @@ export interface AdminOrderDetailsResponse extends Omit<AdminOrderResponse, 'ite
   phoneNumber: string
   shippingAddress: string
   items: OrderItemResponse[]
+  statusHistory: OrderStatusHistoryResponse[]
+}
+
+export interface OrderStatusHistoryResponse {
+  previousStatus: OrderStatus | null
+  newStatus: OrderStatus
+  changedAt: string
+  changedByEmail: string
 }
 
 export async function getAdminOrders(signal: AbortSignal, page: number): Promise<AdminOrderPageResponse> {

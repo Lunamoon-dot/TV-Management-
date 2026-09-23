@@ -31,10 +31,10 @@ public class OrdersController : ControllerBase
     [HttpPost("{id:int}/cancel")]
     public async Task<IActionResult> Cancel(int id, CancellationToken cancellationToken)
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId is null) return Unauthorized();
+        var user = await _userManager.GetUserAsync(User);
+        if (user?.Email is null) return Unauthorized();
 
-        return await _cancellationService.CancelByCustomerAsync(id, userId, cancellationToken) switch
+        return await _cancellationService.CancelByCustomerAsync(id, user.Id, user.Email, cancellationToken) switch
         {
             CancelOrderResult.Success => NoContent(),
             CancelOrderResult.NotFound => NotFound(),
@@ -146,7 +146,7 @@ public class OrdersController : ControllerBase
         CancellationToken cancellationToken)
     {
         var user = await _userManager.GetUserAsync(User);
-        if (user is null) return Unauthorized();
+        if (user?.Email is null) return Unauthorized();
 
         if (request.CheckoutId == Guid.Empty)
             ModelState.AddModelError(nameof(request.CheckoutId), "Checkout id is required.");
@@ -198,6 +198,14 @@ public class OrdersController : ControllerBase
             ShippingAddress = request.ShippingAddress.Trim(),
             PaymentMethod = request.PaymentMethod!.Value
         };
+
+        order.StatusHistory.Add(new OrderStatusHistory
+        {
+            PreviousStatus = null,
+            NewStatus = OrderStatus.Pending,
+            ChangedAt = order.CreatedAt,
+            ChangedByEmail = user.Email
+        });
 
         foreach (var requestedItem in requestedItems)
         {

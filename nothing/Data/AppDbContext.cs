@@ -19,6 +19,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<OrderItem> OrderItems { get; set; }
 
+    public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -135,5 +137,30 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<OrderItem>()
             .Property(item => item.LineTotal)
             .HasPrecision(18, 2);
+
+        modelBuilder.Entity<OrderStatusHistory>()
+            .HasOne(history => history.Order)
+            .WithMany(order => order.StatusHistory)
+            .HasForeignKey(history => history.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OrderStatusHistory>()
+            .Property(history => history.PreviousStatus)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        modelBuilder.Entity<OrderStatusHistory>()
+            .Property(history => history.NewStatus)
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .IsRequired();
+
+        modelBuilder.Entity<OrderStatusHistory>()
+            .Property(history => history.ChangedByEmail)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        modelBuilder.Entity<OrderStatusHistory>()
+            .HasIndex(history => new { history.OrderId, history.ChangedAt });
     }
 }

@@ -64,6 +64,13 @@ try {
     $stockRestored = $true
     Change-Status 'Cancelled' 400
 
+    $historyDetails = Invoke-RestMethod "$BaseUrl/api/admin/orders/$orderId" -WebSession $admin
+    if ($historyDetails.statusHistory.Count -ne 3) { throw "Expected 3 status history entries, got $($historyDetails.statusHistory.Count)." }
+    if ($historyDetails.statusHistory[0].newStatus -ne 'Pending' -or $historyDetails.statusHistory[0].changedByEmail -ne $customerEmail) { throw 'Initial status history is incorrect.' }
+    if ($historyDetails.statusHistory[1].previousStatus -ne 'Pending' -or $historyDetails.statusHistory[1].newStatus -ne 'Confirmed' -or $historyDetails.statusHistory[1].changedByEmail -ne $adminEmail) { throw 'Confirmed status history is incorrect.' }
+    if ($historyDetails.statusHistory[2].previousStatus -ne 'Confirmed' -or $historyDetails.statusHistory[2].newStatus -ne 'Cancelled' -or $historyDetails.statusHistory[2].changedByEmail -ne $adminEmail) { throw 'Cancelled status history is incorrect.' }
+    Write-Output 'PASS: status history records actor and transitions'
+
     $customerOrder = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $customer
     if ($customerOrder.status -ne 'Cancelled') { throw 'Customer does not see updated status.' }
     $productAfterCancel = Invoke-RestMethod "$BaseUrl/api/products/$productId"

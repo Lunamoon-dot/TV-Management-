@@ -167,3 +167,7 @@ Thanh toán thủ công có audit tối thiểu gồm PaidAt và snapshot email 
 ## Tiến độ Admin Orders — bài36
 
 Admin có trang chi tiết tại `/admin/orders/:id` và API projection trả thông tin Customer, snapshot giao hàng, payment audit cùng các sản phẩm của một đơn. Danh sách tiếp tục dùng DTO tóm tắt để không tải items dư thừa. Customer gọi API Admin nhận 403. Chưa có ghi chú nội bộ hoặc lịch sử từng lần chuyển trạng thái.
+
+## Tiến độ Order Status — bài37
+
+Đơn hàng có timeline trạng thái bất biến: trạng thái cũ/mới, thời gian và email người thao tác. Tạo đơn và mọi transition hợp lệ đều ghi trong cùng transaction; migration backfill mốc hiện tại cho đơn cũ. Admin xem timeline ở chi tiết đơn. Chưa có ghi chú nội bộ, lý do hủy hoặc audit cho các thay đổi ngoài trạng thái.

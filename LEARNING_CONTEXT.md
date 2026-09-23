@@ -82,6 +82,10 @@ Xác nhận Paid lưu thêm PaidAt và email Admin dạng snapshot. Retry không
 
 Admin có `GET /api/admin/orders/{id}` projection sang DTO chi tiết gồm Customer email, snapshot giao hàng, payment audit và items. React có `/admin/orders/:id`, link từ bảng cùng loading/error/404. Customer bị chặn 403; Admin đọc đúng giao hàng/item. Không đổi schema hoặc migration. Xem `lessons/36-admin-order-details.md`.
 
+## Tiến độ Order Status — bài 37
+
+Thêm `OrderStatusHistory` lưu previous/new status, thời gian và email actor lấy từ Identity. Tạo đơn, Admin transition, Admin/Customer cancel đều ghi history cùng transaction; thao tác lỗi không ghi. Migration `20260923073347_AddOrderStatusHistory` đã apply và backfill một mốc cho đơn cũ. Admin detail hiển thị timeline và dùng `AsSplitQuery` cho Items + StatusHistory. Xem `lessons/37-order-status-history.md`.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

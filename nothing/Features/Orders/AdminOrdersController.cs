@@ -69,6 +69,7 @@ public class AdminOrdersController : ControllerBase
         CancellationToken cancellationToken)
     {
         var order = await _context.Orders
+            .AsSplitQuery()
             .Where(order => order.Id == id)
             .Select(order => new AdminOrderDetailsResponse
             {
@@ -94,6 +95,16 @@ public class AdminOrdersController : ControllerBase
                         UnitPrice = item.UnitPrice,
                         Quantity = item.Quantity,
                         LineTotal = item.LineTotal
+                    }).ToList(),
+                StatusHistory = order.StatusHistory
+                    .OrderBy(history => history.ChangedAt)
+                    .ThenBy(history => history.Id)
+                    .Select(history => new OrderStatusHistoryResponse
+                    {
+                        PreviousStatus = history.PreviousStatus,
+                        NewStatus = history.NewStatus,
+                        ChangedAt = history.ChangedAt,
+                        ChangedByEmail = history.ChangedByEmail
                     }).ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
@@ -144,9 +155,12 @@ public class AdminOrdersController : ControllerBase
         CancellationToken cancellationToken)
     {
         var nextStatus = request.Status!.Value;
+        var admin = await _userManager.GetUserAsync(User);
+        if (admin?.Email is null) return Unauthorized();
+
         if (nextStatus == OrderStatus.Cancelled)
         {
-            return await _cancellationService.CancelByAdminAsync(id, cancellationToken) switch
+            return await _cancellationService.CancelByAdminAsync(id, admin.Email, cancellationToken) switch
             {
                 CancelOrderResult.Success => NoContent(),
                 CancelOrderResult.NotFound => NotFound(),
@@ -169,7 +183,15 @@ public class AdminOrdersController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
+        var previousStatus = order.Status;
         order.Status = nextStatus;
+        order.StatusHistory.Add(new OrderStatusHistory
+        {
+            PreviousStatus = previousStatus,
+            NewStatus = nextStatus,
+            ChangedAt = DateTimeOffset.UtcNow,
+            ChangedByEmail = admin.Email
+        });
         await _context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return NoContent();

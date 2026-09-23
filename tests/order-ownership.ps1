@@ -65,6 +65,10 @@ try {
     $cancelled = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $session1
     if ($cancelled.status -ne 'Cancelled') { throw 'Cancelled status was not returned to owner.' }
     Write-Output 'PASS: customer cancellation is visible and idempotent for stock'
+
+    $historyAudit = (& sqlcmd -S $SqlServer -d $Database -E -C -I -h -1 -W -Q "SET NOCOUNT ON; SELECT CONCAT(COUNT(*), '|', MAX(CASE WHEN NewStatus = 'Cancelled' THEN ChangedByEmail END)) FROM OrderStatusHistories WHERE OrderId = $orderId;").Trim()
+    if ($LASTEXITCODE -ne 0 -or $historyAudit -ne "2|$email1") { throw "Customer status audit is incorrect: $historyAudit" }
+    Write-Output 'PASS: customer cancellation records status history'
 } finally {
     $cleanup = @"
 SET QUOTED_IDENTIFIER ON;

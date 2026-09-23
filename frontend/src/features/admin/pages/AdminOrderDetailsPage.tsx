@@ -7,6 +7,13 @@ import { getAdminOrderById, type AdminOrderDetailsResponse } from '../api/orders
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
+const statusLabels = {
+  Pending: 'Chờ xác nhận',
+  Confirmed: 'Đã xác nhận',
+  Shipped: 'Đang giao',
+  Completed: 'Hoàn thành',
+  Cancelled: 'Đã hủy',
+} as const
 
 type DetailsState =
   | { status: 'loading' | 'not-found' | 'error' }
@@ -61,6 +68,15 @@ export function AdminOrderDetailsPage() {
       <h2 className="text-xl font-semibold">Sản phẩm</h2>
       <ul className="mt-4 divide-y divide-[#e1e5e2]">{order.items.map(item => <li key={item.productId} className="flex justify-between gap-5 py-4"><div><p className="font-semibold">{item.productName}</p><p className="text-sm text-[#52645e]">{item.brandName} · {money.format(item.unitPrice)} × {item.quantity}</p></div><p className="font-semibold">{money.format(item.lineTotal)}</p></li>)}</ul>
       <div className="mt-5 flex justify-between border-t border-[#cbd3cd] pt-5 text-xl font-bold"><span>Tổng cộng</span><span>{money.format(order.totalAmount)}</span></div>
+    </section>
+    <section className="mt-6 rounded-lg border border-[#d2d9d4] bg-white p-6">
+      <h2 className="text-xl font-semibold">Lịch sử trạng thái</h2>
+      {order.statusHistory.length === 0 ? <p className="mt-4 text-sm text-[#52645e]">Chưa có lịch sử trạng thái.</p> :
+        <ol className="mt-5 space-y-5 border-l border-[#9eafa7] pl-5">{order.statusHistory.map((history, index) =>
+          <li key={`${history.changedAt}-${index}`} className="relative before:absolute before:-left-[25px] before:top-1.5 before:size-2 before:rounded-full before:bg-[#254c40]">
+            <p className="font-semibold">{history.previousStatus ? `${statusLabels[history.previousStatus]} → ` : ''}{statusLabels[history.newStatus]}</p>
+            <p className="mt-1 text-sm text-[#52645e]">{dateTime.format(new Date(history.changedAt))} · {history.changedByEmail}</p>
+          </li>)}</ol>}
     </section>
   </main>
 }
