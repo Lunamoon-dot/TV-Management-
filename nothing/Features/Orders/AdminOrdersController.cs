@@ -30,11 +30,20 @@ public class AdminOrdersController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<AdminOrderPageResponse>> GetAll(
-        [FromQuery] OrderQueryRequest query,
+        [FromQuery] AdminOrderQueryRequest query,
         CancellationToken cancellationToken)
     {
-        var totalCount = await _context.Orders.CountAsync(cancellationToken);
-        var items = await _context.Orders
+        var orders = _context.Orders.AsQueryable();
+        var search = query.Search?.Trim();
+        if (!string.IsNullOrEmpty(search))
+            orders = orders.Where(order => order.Customer.Email != null && order.Customer.Email.Contains(search));
+        if (query.Status is { } status)
+            orders = orders.Where(order => order.Status == status);
+        if (query.PaymentStatus is { } paymentStatus)
+            orders = orders.Where(order => order.PaymentStatus == paymentStatus);
+
+        var totalCount = await orders.CountAsync(cancellationToken);
+        var items = await orders
             .OrderByDescending(order => order.CreatedAt)
             .ThenByDescending(order => order.Id)
             .Skip((query.Page - 1) * query.PageSize)

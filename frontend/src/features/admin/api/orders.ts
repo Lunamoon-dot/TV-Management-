@@ -22,6 +22,12 @@ export interface AdminOrderPageResponse {
   pageSize: number
 }
 
+export interface AdminOrderFilters {
+  search: string
+  status: OrderStatus | ''
+  paymentStatus: PaymentStatus | ''
+}
+
 export interface AdminOrderDetailsResponse extends Omit<AdminOrderResponse, 'itemCount'> {
   recipientName: string
   phoneNumber: string
@@ -46,9 +52,15 @@ export interface OrderNoteResponse {
   createdByEmail: string
 }
 
-export async function getAdminOrders(signal: AbortSignal, page: number): Promise<AdminOrderPageResponse> {
+export async function getAdminOrders(signal: AbortSignal, page: number, filters: AdminOrderFilters): Promise<AdminOrderPageResponse> {
   return (await http.get<AdminOrderPageResponse>('/admin/orders', {
-    params: { page, pageSize: 20 },
+    params: {
+      page,
+      pageSize: 20,
+      search: filters.search || undefined,
+      status: filters.status || undefined,
+      paymentStatus: filters.paymentStatus || undefined,
+    },
     signal,
   })).data
 }

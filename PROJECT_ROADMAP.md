@@ -179,3 +179,7 @@ Hủy đơn bắt buộc reason 5–300 ký tự ở cả Customer và Admin; Zo
 ## Tiến độ Admin Orders — bài39
 
 Admin có thể thêm và đọc ghi chú nội bộ trên chi tiết đơn; mỗi note lưu nội dung, thời gian và snapshot email người tạo. API dùng role + CSRF, Customer bị chặn và DTO Customer không trả notes. Chưa hỗ trợ sửa/xóa note, nhờ đó lịch sử trao đổi hiện tại chỉ được bổ sung.
+
+## Tiến độ Admin Orders — bài40
+
+Admin lọc danh sách theo email Customer, trạng thái đơn và trạng thái thanh toán, kết hợp với phân trang và tổng số sau lọc. React giữ riêng email đang gõ và filter đã áp dụng để tránh request theo từng phím. Chưa có lọc khoảng ngày hoặc sort tùy chọn.

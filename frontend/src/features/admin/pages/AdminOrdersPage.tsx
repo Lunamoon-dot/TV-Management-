@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { OrderStatusBadge } from '../../orders/components/OrderStatusBadge'
 import { PaymentSummary } from '../../orders/components/PaymentSummary'
-import type { OrderStatus } from '../../orders/types'
-import { getAdminOrders, updateOrderStatus, updatePaymentStatus, type AdminOrderPageResponse } from '../api/orders'
+import type { OrderStatus, PaymentStatus } from '../../orders/types'
+import { getAdminOrders, updateOrderStatus, updatePaymentStatus, type AdminOrderFilters, type AdminOrderPageResponse } from '../api/orders'
 import { cancelOrderSchema } from '../../orders/schemas/cancel-order'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
@@ -14,6 +14,8 @@ const actions: Partial<Record<OrderStatus, Array<{ status: OrderStatus; label: s
   Confirmed: [{ status: 'Shipped', label: 'Bắt đầu giao' }, { status: 'Cancelled', label: 'Hủy đơn' }],
   Shipped: [{ status: 'Completed', label: 'Hoàn thành' }],
 }
+
+const emptyFilters: AdminOrderFilters = { search: '', status: '', paymentStatus: '' }
 
 type PageState =
   | { status: 'loading' | 'error' }
@@ -27,10 +29,12 @@ export function AdminOrdersPage() {
   const [error, setError] = useState('')
   const [cancellationTarget, setCancellationTarget] = useState<number>()
   const [cancellationReason, setCancellationReason] = useState('')
+  const [draftSearch, setDraftSearch] = useState('')
+  const [filters, setFilters] = useState<AdminOrderFilters>(emptyFilters)
 
   useEffect(() => {
     const controller = new AbortController()
-    getAdminOrders(controller.signal, page)
+    getAdminOrders(controller.signal, page, filters)
       .then(data => {
         if (!controller.signal.aborted) setState({ status: 'success', data })
       })
@@ -38,7 +42,13 @@ export function AdminOrdersPage() {
         if (!controller.signal.aborted) setState({ status: 'error' })
       })
     return () => controller.abort()
-  }, [page, retry])
+  }, [filters, page, retry])
+
+  function applyFilters(next: AdminOrderFilters) {
+    setState({ status: 'loading' })
+    setPage(1)
+    setFilters(next)
+  }
 
   async function changeStatus(id: number, status: OrderStatus, reason?: string) {
     if (updatingId !== undefined) return
@@ -92,6 +102,13 @@ export function AdminOrdersPage() {
     <p className="text-xs font-bold tracking-[2px] text-[#436b5e]">QUẢN TRỊ / ĐƠN HÀNG</p>
     <h1 className="mt-3 text-3xl font-bold sm:text-5xl">Xử lý đơn hàng.</h1>
 
+    <form className="mt-8 grid gap-4 rounded-lg border border-[#d2d9d4] bg-white p-5 md:grid-cols-[2fr_1fr_1fr_auto]" onSubmit={event => { event.preventDefault(); applyFilters({ ...filters, search: draftSearch.trim() }) }}>
+      <div><label htmlFor="order-search" className="text-sm font-semibold">Email khách hàng</label><input id="order-search" value={draftSearch} maxLength={256} onChange={event => setDraftSearch(event.target.value)} placeholder="customer@example.com" className="mt-2 block w-full rounded-md border border-[#b8c4bd] p-2.5" /></div>
+      <div><label htmlFor="order-status" className="text-sm font-semibold">Trạng thái đơn</label><select id="order-status" value={filters.status} onChange={event => applyFilters({ ...filters, status: event.target.value as OrderStatus | '' })} className="mt-2 block w-full rounded-md border border-[#b8c4bd] bg-white p-2.5"><option value="">Tất cả</option><option value="Pending">Chờ xác nhận</option><option value="Confirmed">Đã xác nhận</option><option value="Shipped">Đang giao</option><option value="Completed">Hoàn thành</option><option value="Cancelled">Đã hủy</option></select></div>
+      <div><label htmlFor="payment-status" className="text-sm font-semibold">Thanh toán</label><select id="payment-status" value={filters.paymentStatus} onChange={event => applyFilters({ ...filters, paymentStatus: event.target.value as PaymentStatus | '' })} className="mt-2 block w-full rounded-md border border-[#b8c4bd] bg-white p-2.5"><option value="">Tất cả</option><option value="Unpaid">Chưa thanh toán</option><option value="Paid">Đã thanh toán</option></select></div>
+      <div className="flex items-end gap-3"><button type="submit" className="cursor-pointer rounded-md bg-[#254c40] px-4 py-2.5 font-semibold text-white">Tìm</button><button type="button" className="cursor-pointer underline" onClick={() => { setDraftSearch(''); applyFilters(emptyFilters) }}>Xóa lọc</button></div>
+    </form>
+
     {error && <p role="alert" className="mt-6 text-red-800">{error}</p>}
     {state.status === 'loading' && <p role="status" className="mt-8">Đang tải đơn hàng…</p>}
     {state.status === 'error' && <div role="alert" className="mt-8 rounded-md border border-orange-200 bg-orange-50 p-5 text-orange-900">
@@ -102,7 +119,8 @@ export function AdminOrdersPage() {
       }}>Thử lại</button>
     </div>}
     {state.status === 'success' && <>
-      {state.data.items.length === 0 ? <p className="mt-8">Chưa có đơn hàng.</p> : <div className="mt-8 overflow-x-auto rounded-lg border border-[#d2d9d4] bg-white">
+      <p className="mt-6 text-sm text-[#52645e]">Tìm thấy {state.data.totalCount} đơn hàng</p>
+      {state.data.items.length === 0 ? <p className="mt-5">Không có đơn hàng phù hợp.</p> : <div className="mt-5 overflow-x-auto rounded-lg border border-[#d2d9d4] bg-white">
         <table className="w-full min-w-[900px] text-left">
           <thead className="border-b border-[#d2d9d4] bg-[#f7f8f6] text-sm text-[#52645e]"><tr>
             <th className="px-5 py-4">Đơn</th><th className="px-5 py-4">Khách hàng</th><th className="px-5 py-4">Tổng tiền</th><th className="px-5 py-4">Thanh toán</th><th className="px-5 py-4">Trạng thái</th><th className="px-5 py-4">Thao tác</th>

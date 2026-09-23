@@ -57,6 +57,12 @@ try {
     $adminOrders = Invoke-RestMethod "$BaseUrl/api/admin/orders?page=1&pageSize=20" -WebSession $admin
     if (-not ($adminOrders.items | Where-Object id -eq $orderId)) { throw 'Admin list does not contain the order.' }
     Write-Output 'PASS: admin sees order'
+    $filteredOrders = Invoke-RestMethod "$BaseUrl/api/admin/orders?page=1&pageSize=20&search=$suffix&status=Pending&paymentStatus=Unpaid" -WebSession $admin
+    if ($filteredOrders.totalCount -ne 1 -or $filteredOrders.items[0].id -ne $orderId) { throw 'Combined admin order filters are incorrect.' }
+    $emptyFilter = Invoke-RestMethod "$BaseUrl/api/admin/orders?page=1&pageSize=20&search=$suffix&status=Completed" -WebSession $admin
+    if ($emptyFilter.totalCount -ne 0 -or $emptyFilter.items.Count -ne 0) { throw 'Admin status filter returned an incorrect order.' }
+    Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders?status=Unknown" -WebSession $admin -SkipHttpErrorCheck) 400 'invalid order status filter'
+    Write-Output 'PASS: admin combines email, order status and payment filters'
     $adminDetails = Invoke-RestMethod "$BaseUrl/api/admin/orders/$orderId" -WebSession $admin
     if ($adminDetails.id -ne $orderId -or $adminDetails.customerEmail -ne $customerEmail -or $adminDetails.recipientName -ne 'Nguyen Van Test' -or $adminDetails.items[0].productId -ne $productId) { throw 'Admin order detail response is incorrect.' }
     Write-Output 'PASS: admin sees shipping and item details'
