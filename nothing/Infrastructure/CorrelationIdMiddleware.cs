@@ -27,10 +27,7 @@ public class CorrelationIdMiddleware
             return Task.CompletedTask;
         });
 
-        using (_logger.BeginScope(new Dictionary<string, object>
-        {
-            ["CorrelationId"] = correlationId
-        }))
+        using (_logger.BeginScope("CorrelationId: {CorrelationId}", correlationId))
         {
             await _next(context);
         }

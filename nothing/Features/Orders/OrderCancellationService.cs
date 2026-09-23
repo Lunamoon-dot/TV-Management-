@@ -15,10 +15,14 @@ public enum CancelOrderResult
 public class OrderCancellationService
 {
     private readonly AppDbContext _context;
+    private readonly ILogger<OrderCancellationService> _logger;
 
-    public OrderCancellationService(AppDbContext context)
+    public OrderCancellationService(
+        AppDbContext context,
+        ILogger<OrderCancellationService> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public Task<CancelOrderResult> CancelByCustomerAsync(
@@ -59,14 +63,30 @@ public class OrderCancellationService
                 .Include(order => order.Items)
                 .ThenInclude(item => item.Product)
                 .FirstOrDefaultAsync(cancellationToken);
-            if (order is null) return CancelOrderResult.NotFound;
+            if (order is null)
+            {
+                _logger.LogWarning(
+                    "Cancellation rejected because order {OrderId} was not found or was not owned by the customer",
+                    id);
+                return CancelOrderResult.NotFound;
+            }
 
             if (order.PaymentStatus == PaymentStatus.Paid)
+            {
+                _logger.LogWarning("Cancellation rejected because order {OrderId} is already paid", id);
                 return CancelOrderResult.InvalidStatus;
+            }
 
             var canCancel = order.Status == OrderStatus.Pending
                 || allowConfirmed && order.Status == OrderStatus.Confirmed;
-            if (!canCancel) return CancelOrderResult.InvalidStatus;
+            if (!canCancel)
+            {
+                _logger.LogWarning(
+                    "Cancellation rejected for order {OrderId} in status {OrderStatus}",
+                    id,
+                    order.Status);
+                return CancelOrderResult.InvalidStatus;
+            }
 
             foreach (var item in order.Items)
                 item.Product.Stock += item.Quantity;
@@ -83,6 +103,11 @@ public class OrderCancellationService
             });
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation(
+                "Cancelled order {OrderId} and restored stock for {ItemCount} line items by {ActorType}",
+                order.Id,
+                order.Items.Count,
+                customerId is null ? "Admin" : "Customer");
             return CancelOrderResult.Success;
         });
     }

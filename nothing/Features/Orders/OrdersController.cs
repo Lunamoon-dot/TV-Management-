@@ -16,15 +16,18 @@ public class OrdersController : ControllerBase
     private readonly AppDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly OrderCancellationService _cancellationService;
+    private readonly ILogger<OrdersController> _logger;
 
     public OrdersController(
         AppDbContext context,
         UserManager<ApplicationUser> userManager,
-        OrderCancellationService cancellationService)
+        OrderCancellationService cancellationService,
+        ILogger<OrdersController> logger)
     {
         _context = context;
         _userManager = userManager;
         _cancellationService = cancellationService;
+        _logger = logger;
     }
 
     [ValidateAntiForgeryToken]
@@ -197,6 +200,10 @@ public class OrdersController : ControllerBase
             if (existingOrder is not null)
             {
                 await transaction.CommitAsync(cancellationToken);
+                _logger.LogInformation(
+                    "Returning existing order {OrderId} for repeated checkout {CheckoutId}",
+                    existingOrder.Id,
+                    request.CheckoutId);
                 return Ok(ToResponse(existingOrder));
             }
 
@@ -229,12 +236,22 @@ public class OrdersController : ControllerBase
             {
                 if (!products.TryGetValue(requestedItem.ProductId, out var product))
                 {
+                    _logger.LogWarning(
+                        "Checkout {CheckoutId} rejected because product {ProductId} was not found",
+                        request.CheckoutId,
+                        requestedItem.ProductId);
                     ModelState.AddModelError(nameof(request.Items), $"Product {requestedItem.ProductId} does not exist.");
                     return ValidationProblem(ModelState);
                 }
 
                 if (product.Stock < requestedItem.Quantity)
                 {
+                    _logger.LogWarning(
+                        "Checkout {CheckoutId} rejected for product {ProductId}: requested {RequestedQuantity}, available {AvailableStock}",
+                        request.CheckoutId,
+                        product.Id,
+                        requestedItem.Quantity,
+                        product.Stock);
                     ModelState.AddModelError(nameof(request.Items),
                         $"Product {product.Id} only has {product.Stock} item(s) in stock.");
                     return ValidationProblem(ModelState);
@@ -258,6 +275,13 @@ public class OrdersController : ControllerBase
             _context.Orders.Add(order);
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+
+            _logger.LogInformation(
+                "Created order {OrderId} with {ItemCount} line items and total {TotalAmount} using {PaymentMethod}",
+                order.Id,
+                order.Items.Count,
+                order.TotalAmount,
+                order.PaymentMethod);
 
             return StatusCode(StatusCodes.Status201Created, ToResponse(order));
         });

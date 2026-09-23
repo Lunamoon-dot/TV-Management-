@@ -207,3 +207,7 @@ Data Protection dùng application name `TvStore`. Development giữ key store m�
 ## Tiến độ Observability — bài46
 
 Mọi response có `X-Correlation-ID`; server giữ ID client gửi nếu đúng whitelist hoặc tự sinh GUID, đặt vào `HttpContext.TraceIdentifier` và logging scope. Lỗi 500 trả cùng mã trong `ProblemDetails.traceId`, giúp nối lỗi phía client với log server. Chưa chọn log aggregation/APM provider hoặc chính sách retention.
+
+## Tiến độ Observability — bài47
+
+Luồng order có structured logs chọn lọc cho tạo/replay checkout, thiếu sản phẩm/tồn kho, xác nhận thanh toán, transition và hủy/hoàn kho. Log tránh password/token và thông tin giao hàng; correlation scope được hiện trên console. EF SQL command mặc định lọc ở Warning để log nghiệp vụ dễ đọc, có thể bật Information khi debug query. Chưa có log aggregation, metrics hoặc alert.

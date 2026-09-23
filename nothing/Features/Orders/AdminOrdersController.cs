@@ -17,15 +17,18 @@ public class AdminOrdersController : ControllerBase
     private readonly AppDbContext _context;
     private readonly OrderCancellationService _cancellationService;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ILogger<AdminOrdersController> _logger;
 
     public AdminOrdersController(
         AppDbContext context,
         OrderCancellationService cancellationService,
-        UserManager<ApplicationUser> userManager)
+        UserManager<ApplicationUser> userManager,
+        ILogger<AdminOrdersController> logger)
     {
         _context = context;
         _cancellationService = cancellationService;
         _userManager = userManager;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -203,6 +206,7 @@ public class AdminOrdersController : ControllerBase
         order.PaidAt = DateTimeOffset.UtcNow;
         order.PaymentConfirmedByEmail = admin.Email;
         await _context.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Marked order {OrderId} payment as paid", order.Id);
         return NoContent();
     }
 
@@ -251,6 +255,11 @@ public class AdminOrdersController : ControllerBase
 
             if (!CanTransition(order.Status, nextStatus))
             {
+                _logger.LogWarning(
+                    "Rejected order {OrderId} status transition from {PreviousStatus} to {NextStatus}",
+                    order.Id,
+                    order.Status,
+                    nextStatus);
                 ModelState.AddModelError(nameof(request.Status),
                     $"Cannot change order status from {order.Status} to {nextStatus}.");
                 return ValidationProblem(ModelState);
@@ -267,6 +276,11 @@ public class AdminOrdersController : ControllerBase
             });
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
+            _logger.LogInformation(
+                "Changed order {OrderId} status from {PreviousStatus} to {NextStatus}",
+                order.Id,
+                previousStatus,
+                nextStatus);
             return NoContent();
         });
     }
