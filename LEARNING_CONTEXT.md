@@ -102,6 +102,10 @@ Danh sách Admin lọc được theo một phần email Customer, OrderStatus v�
 
 Product có SQL Server rowversion; response serialize byte[] thành Base64 và form edit gửi token GET cũ trong PUT. EF dùng token làm original value, stale update ném DbUpdateConcurrencyException và API trả 409; React yêu cầu reload thay vì ghi đè. Stock đổi do checkout/cancel cũng đổi token. Migration `20260923122459_AddProductRowVersion` đã apply. Test hai update cùng token xác nhận update đầu giữ nguyên, update sau 409; catalog/order regression đạt. Xem `lessons/41-product-optimistic-concurrency.md`.
 
+## Tiến độ Cloud Database — bài 42
+
+SQL Server bật EnableRetryOnFailure 3 lần/tối đa 5 giây. Ba workflow có Serializable transaction (checkout, cancel, Admin status) đã bọc toàn unit of work bằng CreateExecutionStrategy để retry tương thích transaction. Thêm `/health/live` không chạm DB và `/health/ready` dùng CanConnectAsync. Health và các integration transaction đạt; không đổi schema. Xem `lessons/42-cloud-database-resilience-health.md`.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

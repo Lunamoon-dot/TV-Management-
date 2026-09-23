@@ -238,33 +238,37 @@ public class AdminOrdersController : ControllerBase
             };
         }
 
-        await using var transaction = await _context.Database.BeginTransactionAsync(
-            IsolationLevel.Serializable,
-            cancellationToken);
-
-        var order = await _context.Orders
-            .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
-        if (order is null) return NotFound();
-
-        if (!CanTransition(order.Status, nextStatus))
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync<IActionResult>(async () =>
         {
-            ModelState.AddModelError(nameof(request.Status),
-                $"Cannot change order status from {order.Status} to {nextStatus}.");
-            return ValidationProblem(ModelState);
-        }
+            await using var transaction = await _context.Database.BeginTransactionAsync(
+                IsolationLevel.Serializable,
+                cancellationToken);
 
-        var previousStatus = order.Status;
-        order.Status = nextStatus;
-        order.StatusHistory.Add(new OrderStatusHistory
-        {
-            PreviousStatus = previousStatus,
-            NewStatus = nextStatus,
-            ChangedAt = DateTimeOffset.UtcNow,
-            ChangedByEmail = admin.Email
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
+            if (order is null) return NotFound();
+
+            if (!CanTransition(order.Status, nextStatus))
+            {
+                ModelState.AddModelError(nameof(request.Status),
+                    $"Cannot change order status from {order.Status} to {nextStatus}.");
+                return ValidationProblem(ModelState);
+            }
+
+            var previousStatus = order.Status;
+            order.Status = nextStatus;
+            order.StatusHistory.Add(new OrderStatusHistory
+            {
+                PreviousStatus = previousStatus,
+                NewStatus = nextStatus,
+                ChangedAt = DateTimeOffset.UtcNow,
+                ChangedByEmail = admin.Email
+            });
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+            return NoContent();
         });
-        await _context.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-        return NoContent();
     }
 
     private IActionResult InvalidTransition(string message)

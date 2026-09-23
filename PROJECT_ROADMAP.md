@@ -187,3 +187,7 @@ Admin lọc danh sách theo email Customer, trạng thái đơn và trạng thá
 ## Tiến độ Product Concurrency — bài41
 
 Product dùng SQL Server rowversion để phát hiện lost update. React gửi token từ lần GET; stale PUT trả 409 và không ghi đè dữ liệu mới, kể cả khi Stock vừa đổi do checkout. Migration đã áp dụng và regression catalog/order đạt. Delete chưa nhận token từ client; nếu cần UX xung đột khi xóa sẽ mở rộng riêng.
+
+## Tiến độ Cloud Database — bài42
+
+EF SQL Server có transient retry và các transaction thủ công chạy bên trong execution strategy. Liveness tách khỏi readiness kiểm tra SQL để phục vụ load balancer/orchestrator. Production vẫn cần chọn nhà cung cấp, secret store, firewall/private network, backup và bước migration trong pipeline deploy.

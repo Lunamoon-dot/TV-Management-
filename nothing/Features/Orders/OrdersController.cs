@@ -182,81 +182,85 @@ public class OrdersController : ControllerBase
             })
             .ToList();
 
-        await using var transaction = await _context.Database.BeginTransactionAsync(
-            IsolationLevel.Serializable,
-            cancellationToken);
-
-        var existingOrder = await _context.Orders
-            .Include(order => order.Items)
-            .FirstOrDefaultAsync(
-                order => order.CustomerId == user.Id && order.CheckoutId == request.CheckoutId,
-                cancellationToken);
-        if (existingOrder is not null)
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync<ActionResult<OrderResponse>>(async () =>
         {
-            await transaction.CommitAsync(cancellationToken);
-            return Ok(ToResponse(existingOrder));
-        }
+            await using var transaction = await _context.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable,
+                    cancellationToken);
 
-        var productIds = requestedItems.Select(item => item.ProductId).ToList();
-        var products = await _context.Products
-            .Include(product => product.Brand)
-            .Where(product => productIds.Contains(product.Id))
-            .ToDictionaryAsync(product => product.Id, cancellationToken);
-
-        var order = new Order
-        {
-            CustomerId = user.Id,
-            CheckoutId = request.CheckoutId,
-            CreatedAt = DateTimeOffset.UtcNow,
-            RecipientName = request.RecipientName.Trim(),
-            PhoneNumber = request.PhoneNumber.Trim(),
-            ShippingAddress = request.ShippingAddress.Trim(),
-            PaymentMethod = request.PaymentMethod!.Value
-        };
-
-        order.StatusHistory.Add(new OrderStatusHistory
-        {
-            PreviousStatus = null,
-            NewStatus = OrderStatus.Pending,
-            ChangedAt = order.CreatedAt,
-            ChangedByEmail = user.Email
-        });
-
-        foreach (var requestedItem in requestedItems)
-        {
-            if (!products.TryGetValue(requestedItem.ProductId, out var product))
+            var existingOrder = await _context.Orders
+                .Include(order => order.Items)
+                .FirstOrDefaultAsync(
+                    order => order.CustomerId == user.Id && order.CheckoutId == request.CheckoutId,
+                    cancellationToken);
+            if (existingOrder is not null)
             {
-                ModelState.AddModelError(nameof(request.Items), $"Product {requestedItem.ProductId} does not exist.");
-                return ValidationProblem(ModelState);
+                await transaction.CommitAsync(cancellationToken);
+                return Ok(ToResponse(existingOrder));
             }
 
-            if (product.Stock < requestedItem.Quantity)
-            {
-                ModelState.AddModelError(nameof(request.Items),
-                    $"Product {product.Id} only has {product.Stock} item(s) in stock.");
-                return ValidationProblem(ModelState);
-            }
+            var productIds = requestedItems.Select(item => item.ProductId).ToList();
+            var products = await _context.Products
+                .Include(product => product.Brand)
+                .Where(product => productIds.Contains(product.Id))
+                .ToDictionaryAsync(product => product.Id, cancellationToken);
 
-            var lineTotal = product.Price * requestedItem.Quantity;
-            order.Items.Add(new OrderItem
+            var order = new Order
             {
-                ProductId = product.Id,
-                ProductName = product.Name,
-                BrandName = product.Brand.Name,
-                UnitPrice = product.Price,
-                Quantity = requestedItem.Quantity,
-                LineTotal = lineTotal
+                CustomerId = user.Id,
+                CheckoutId = request.CheckoutId,
+                CreatedAt = DateTimeOffset.UtcNow,
+                RecipientName = request.RecipientName.Trim(),
+                PhoneNumber = request.PhoneNumber.Trim(),
+                ShippingAddress = request.ShippingAddress.Trim(),
+                PaymentMethod = request.PaymentMethod!.Value
+            };
+
+            order.StatusHistory.Add(new OrderStatusHistory
+            {
+                PreviousStatus = null,
+                NewStatus = OrderStatus.Pending,
+                ChangedAt = order.CreatedAt,
+                ChangedByEmail = user.Email
             });
 
-            order.TotalAmount += lineTotal;
-            product.Stock -= requestedItem.Quantity;
-        }
+            foreach (var requestedItem in requestedItems)
+            {
+                if (!products.TryGetValue(requestedItem.ProductId, out var product))
+                {
+                    ModelState.AddModelError(nameof(request.Items), $"Product {requestedItem.ProductId} does not exist.");
+                    return ValidationProblem(ModelState);
+                }
 
-        _context.Orders.Add(order);
-        await _context.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+                if (product.Stock < requestedItem.Quantity)
+                {
+                    ModelState.AddModelError(nameof(request.Items),
+                        $"Product {product.Id} only has {product.Stock} item(s) in stock.");
+                    return ValidationProblem(ModelState);
+                }
 
-        return StatusCode(StatusCodes.Status201Created, ToResponse(order));
+                var lineTotal = product.Price * requestedItem.Quantity;
+                order.Items.Add(new OrderItem
+                {
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    BrandName = product.Brand.Name,
+                    UnitPrice = product.Price,
+                    Quantity = requestedItem.Quantity,
+                    LineTotal = lineTotal
+                });
+
+                order.TotalAmount += lineTotal;
+                product.Stock -= requestedItem.Quantity;
+            }
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return StatusCode(StatusCodes.Status201Created, ToResponse(order));
+        });
     }
 
     private static OrderResponse ToResponse(Order order)
