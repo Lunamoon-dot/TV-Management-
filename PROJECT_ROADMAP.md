@@ -191,3 +191,7 @@ Product dùng SQL Server rowversion để phát hiện lost update. React gửi 
 ## Tiến độ Cloud Database — bài42
 
 EF SQL Server có transient retry và các transaction thủ công chạy bên trong execution strategy. Liveness tách khỏi readiness kiểm tra SQL để phục vụ load balancer/orchestrator. Production vẫn cần chọn nhà cung cấp, secret store, firewall/private network, backup và bước migration trong pipeline deploy.
+
+## Tiến độ Publish — bài43
+
+`dotnet publish` tạo một artifact same-origin chứa ASP.NET API và React production assets. SPA deep links có fallback, còn API không tồn tại giữ 404. Artifact Release đã được chạy ở Production và kiểm tra UI/API/health. Chưa chọn provider, container/reverse proxy hoặc pipeline migration thực tế.

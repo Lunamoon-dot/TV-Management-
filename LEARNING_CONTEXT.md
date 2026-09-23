@@ -106,6 +106,10 @@ Product có SQL Server rowversion; response serialize byte[] thành Base64 và f
 
 SQL Server bật EnableRetryOnFailure 3 lần/tối đa 5 giây. Ba workflow có Serializable transaction (checkout, cancel, Admin status) đã bọc toàn unit of work bằng CreateExecutionStrategy để retry tương thích transaction. Thêm `/health/live` không chạm DB và `/health/ready` dùng CanConnectAsync. Health và các integration transaction đạt; không đổi schema. Xem `lessons/42-cloud-database-resilience-health.md`.
 
+## Tiến độ Publish — bài 43
+
+Production dùng same-origin: ASP.NET phục vụ `/api`, health và React static files. Target PublishFrontend trong csproj chạy npm ci/build rồi copy dist vào artifact wwwroot. UseDefaultFiles/UseStaticFiles + SPA fallback hỗ trợ deep link; catch-all `/api/{**path}` giữ API sai ở 404. Artifact Release đã chạy Production và kiểm tra root/deep links/API/health đạt. Không đổi DB. Xem `lessons/43-publish-react-with-aspnet.md`.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.
