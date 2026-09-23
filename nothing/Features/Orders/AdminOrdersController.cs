@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using nothing.Data;
 using nothing.Features.Auth;
@@ -15,11 +16,16 @@ public class AdminOrdersController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly OrderCancellationService _cancellationService;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public AdminOrdersController(AppDbContext context, OrderCancellationService cancellationService)
+    public AdminOrdersController(
+        AppDbContext context,
+        OrderCancellationService cancellationService,
+        UserManager<ApplicationUser> userManager)
     {
         _context = context;
         _cancellationService = cancellationService;
+        _userManager = userManager;
     }
 
     [HttpGet]
@@ -41,6 +47,8 @@ public class AdminOrdersController : ControllerBase
                 Status = order.Status,
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
+                PaidAt = order.PaidAt,
+                PaymentConfirmedByEmail = order.PaymentConfirmedByEmail,
                 TotalAmount = order.TotalAmount,
                 ItemCount = order.Items.Count
             })
@@ -80,7 +88,12 @@ public class AdminOrdersController : ControllerBase
 
         if (order.PaymentStatus == PaymentStatus.Paid) return NoContent();
 
+        var admin = await _userManager.GetUserAsync(User);
+        if (admin is null) return Unauthorized();
+
         order.PaymentStatus = PaymentStatus.Paid;
+        order.PaidAt = DateTimeOffset.UtcNow;
+        order.PaymentConfirmedByEmail = admin.Email;
         await _context.SaveChangesAsync(cancellationToken);
         return NoContent();
     }

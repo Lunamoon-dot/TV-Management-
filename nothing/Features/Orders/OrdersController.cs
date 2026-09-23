@@ -75,6 +75,7 @@ public class OrdersController : ControllerBase
                 Status = order.Status,
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
+                PaidAt = order.PaidAt,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -119,6 +120,7 @@ public class OrdersController : ControllerBase
                 Status = order.Status,
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
+                PaidAt = order.PaidAt,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -246,6 +248,7 @@ public class OrdersController : ControllerBase
             Status = order.Status,
             PaymentMethod = order.PaymentMethod,
             PaymentStatus = order.PaymentStatus,
+            PaidAt = order.PaidAt,
             TotalAmount = order.TotalAmount,
             Items = order.Items.Select(item => new OrderItemResponse
             {

@@ -18,6 +18,9 @@ public class AdminOrderResponse
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public PaymentStatus PaymentStatus { get; set; }
 
+    public DateTimeOffset? PaidAt { get; set; }
+    public string? PaymentConfirmedByEmail { get; set; }
+
     public decimal TotalAmount { get; set; }
     public int ItemCount { get; set; }
 }

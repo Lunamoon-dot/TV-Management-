@@ -9,6 +9,8 @@ export interface AdminOrderResponse {
   status: OrderStatus
   paymentMethod: PaymentMethod
   paymentStatus: PaymentStatus
+  paidAt: string | null
+  paymentConfirmedByEmail: string | null
   totalAmount: number
   itemCount: number
 }

@@ -24,6 +24,10 @@ public class Order
 
     public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
 
+    public DateTimeOffset? PaidAt { get; set; }
+
+    public string? PaymentConfirmedByEmail { get; set; }
+
     public decimal TotalAmount { get; set; }
 
     public List<OrderItem> Items { get; set; } = [];

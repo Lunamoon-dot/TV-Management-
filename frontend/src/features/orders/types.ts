@@ -28,6 +28,7 @@ export interface OrderResponse {
   status: OrderStatus
   paymentMethod: PaymentMethod
   paymentStatus: PaymentStatus
+  paidAt: string | null
   totalAmount: number
   items: OrderItemResponse[]
 }

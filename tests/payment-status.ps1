@@ -34,9 +34,13 @@ try {
     Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/payment-status" -WebSession $customer -Method Put -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$customerToken } -Body '{"status":"Paid"}' -SkipHttpErrorCheck) 403 'customer cannot mark payment paid'
     $adminToken = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $admin).token
     Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/payment-status" -WebSession $admin -Method Put -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$adminToken } -Body '{"status":"Paid"}' -SkipHttpErrorCheck) 204 'admin marks payment paid'
+    $firstStored = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $customer
     Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/payment-status" -WebSession $admin -Method Put -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$adminToken } -Body '{"status":"Paid"}' -SkipHttpErrorCheck) 204 'mark paid retry is idempotent'
     $stored = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $customer
-    if ($stored.paymentStatus -ne 'Paid') { throw 'Customer does not see Paid status.' }
+    if ($stored.paymentStatus -ne 'Paid' -or -not $stored.paidAt -or $stored.paidAt -ne $firstStored.paidAt) { throw 'Payment audit timestamp is missing or changed during retry.' }
+    $adminOrder = (Invoke-RestMethod "$BaseUrl/api/admin/orders?page=1&pageSize=20" -WebSession $admin).items | Where-Object id -eq $orderId
+    if ($adminOrder.paymentConfirmedByEmail -ne $adminEmail -or -not $adminOrder.paidAt) { throw 'Admin payment audit data is incorrect.' }
+    Write-Output 'PASS: payment audit records original time and admin email'
     Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $customer -Method Post -Headers @{ 'X-CSRF-TOKEN'=$customerToken } -SkipHttpErrorCheck) 400 'paid order cannot be cancelled'
 } finally {
     $cleanup = "IF $orderId > 0 BEGIN UPDATE Products SET Stock=Stock+1 WHERE Id=$productId; DELETE FROM OrderItems WHERE OrderId=$orderId; DELETE FROM Orders WHERE Id=$orderId; END; DELETE FROM AspNetUsers WHERE Email IN ('$customerEmail','$adminEmail');"

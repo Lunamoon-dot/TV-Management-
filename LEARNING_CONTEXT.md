@@ -74,6 +74,10 @@ Order đã tách PaymentMethod và PaymentStatus khỏi OrderStatus. Customer ch
 
 Admin có thể xác nhận Unpaid thành Paid qua endpoint role Admin + CSRF; gọi lặp lại an toàn. Customer chỉ đọc kết quả và không gọi được endpoint. Đơn Paid bị chặn hủy cho đến khi có nghiệp vụ refund. Đây vẫn là đối soát thủ công, chưa phải tích hợp cổng thanh toán hoặc webhook.
 
+## Tiến độ Payment — bài 35
+
+Xác nhận Paid lưu thêm PaidAt và email Admin dạng snapshot. Retry không ghi đè audit ban đầu. Customer thấy thời điểm, còn email người xác nhận chỉ trả trong Admin API. Đây là audit tối thiểu trên Order, chưa phải bảng audit event tổng quát.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

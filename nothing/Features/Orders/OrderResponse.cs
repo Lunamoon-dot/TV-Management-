@@ -24,6 +24,8 @@ public class OrderResponse
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public PaymentStatus PaymentStatus { get; set; }
 
+    public DateTimeOffset? PaidAt { get; set; }
+
     public decimal TotalAmount { get; set; }
 
     public List<OrderItemResponse> Items { get; set; } = [];

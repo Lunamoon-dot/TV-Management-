@@ -58,9 +58,8 @@ export function AdminOrdersPage() {
     setError('')
     try {
       await updatePaymentStatus(id, 'Paid')
-      setState(current => current.status === 'success'
-        ? { status: 'success', data: { ...current.data, items: current.data.items.map(order => order.id === id ? { ...order, paymentStatus: 'Paid' } : order) } }
-        : current)
+      setState({ status: 'loading' })
+      setRetry(value => value + 1)
     } catch {
       setError('Không xác nhận được thanh toán. Hãy tải lại danh sách và thử lại.')
     } finally {
@@ -92,6 +91,7 @@ export function AdminOrdersPage() {
             <td className="px-5 py-4">{order.customerEmail}</td>
             <td className="px-5 py-4 font-semibold">{money.format(order.totalAmount)}</td>
             <td className="px-5 py-4 text-sm"><PaymentSummary method={order.paymentMethod} status={order.paymentStatus} />
+              {order.paidAt && <p className="mt-1 text-xs text-[#52645e]">{dateTime.format(new Date(order.paidAt))}<br />{order.paymentConfirmedByEmail}</p>}
               {order.paymentStatus === 'Unpaid' && order.status !== 'Cancelled' && <button type="button" disabled={updatingId !== undefined}
                 className="mt-2 block cursor-pointer underline disabled:cursor-wait disabled:opacity-40"
                 onClick={() => void markPaid(order.id)}>{order.paymentMethod === 'BankTransfer' ? 'Xác nhận chuyển khoản' : 'Xác nhận đã thu tiền'}</button>}

@@ -159,3 +159,7 @@ Catalog đã có URL ảnh, kích thước màn hình và độ phân giải; Ad
 ## Tiến độ Payment — bài34
 
 Admin đã xác nhận thanh toán thủ công từ Unpaid sang Paid; endpoint có role, CSRF và idempotent khi gọi lặp. Customer thấy kết quả nhưng không có quyền thay đổi. Đơn Paid không thể hủy khi chưa có refund workflow. Chưa có provider transaction, webhook, chữ ký, đối soát tự động hoặc hoàn tiền.
+
+## Tiến độ Payment — bài35
+
+Thanh toán thủ công có audit tối thiểu gồm PaidAt và snapshot email Admin xác nhận; retry giữ nguyên dấu vết đầu tiên. Customer chỉ nhận PaidAt, Admin nhận đủ audit. Chưa có bảng payment transaction/audit event bất biến hoặc correlation ID.

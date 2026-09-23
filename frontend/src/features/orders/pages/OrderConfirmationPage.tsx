@@ -92,6 +92,7 @@ function OrderDetails({ id }: { id: number }) {
         <div><dt className="font-semibold">Số điện thoại</dt><dd className="mt-1 text-[#52645e]">{order.phoneNumber}</dd></div>
         <div><dt className="font-semibold">Địa chỉ</dt><dd className="mt-1 whitespace-pre-wrap text-[#52645e]">{order.shippingAddress}</dd></div>
         <div><dt className="font-semibold">Thanh toán</dt><dd className="mt-1 text-[#52645e]"><PaymentSummary method={order.paymentMethod} status={order.paymentStatus} /></dd></div>
+        {order.paidAt && <div><dt className="font-semibold">Xác nhận lúc</dt><dd className="mt-1 text-[#52645e]">{dateTime.format(new Date(order.paidAt))}</dd></div>}
       </dl>
     </section>
     <section className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-6">

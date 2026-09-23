@@ -102,6 +102,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasMaxLength(20)
             .IsRequired();
 
+        modelBuilder.Entity<Order>()
+            .Property(order => order.PaymentConfirmedByEmail)
+            .HasMaxLength(256);
+
         modelBuilder.Entity<OrderItem>()
             .HasOne(item => item.Order)
             .WithMany(order => order.Items)
