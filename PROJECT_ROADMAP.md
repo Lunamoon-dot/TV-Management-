@@ -195,3 +195,7 @@ EF SQL Server có transient retry và các transaction thủ công chạy bên t
 ## Tiến độ Publish — bài43
 
 `dotnet publish` tạo một artifact same-origin chứa ASP.NET API và React production assets. SPA deep links có fallback, còn API không tồn tại giữ 404. Artifact Release đã được chạy ở Production và kiểm tra UI/API/health. Chưa chọn provider, container/reverse proxy hoặc pipeline migration thực tế.
+
+## Tiến độ bảo mật Auth — bài44
+
+`POST /api/auth/login` có fixed-window rate limit theo IP: tối đa 10 request/phút, request dư trả 429 ProblemDetails và Retry-After; React có thông báo riêng cho 429. Identity lockout theo tài khoản tiếp tục hoạt động độc lập. Limiter hiện lưu trong memory của một instance; khi chọn reverse proxy/nhiều instance phải cấu hình trusted forwarded headers và lớp rate limit phù hợp hạ tầng.

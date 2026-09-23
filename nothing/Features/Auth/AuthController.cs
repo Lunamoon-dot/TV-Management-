@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using nothing.Models;
 
 namespace nothing.Features.Auth;
@@ -63,6 +64,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
+    [EnableRateLimiting("login")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginRequest request)
     {
