@@ -211,3 +211,7 @@ Mọi response có `X-Correlation-ID`; server giữ ID client gửi nếu đúng
 ## Tiến độ Observability — bài47
 
 Luồng order có structured logs chọn lọc cho tạo/replay checkout, thiếu sản phẩm/tồn kho, xác nhận thanh toán, transition và hủy/hoàn kho. Log tránh password/token và thông tin giao hàng; correlation scope được hiện trên console. EF SQL command mặc định lọc ở Warning để log nghiệp vụ dễ đọc, có thể bật Information khi debug query. Chưa có log aggregation, metrics hoặc alert.
+
+## Tiến độ hỗ trợ lỗi frontend — bài48
+
+React có helper đọc `X-Correlation-ID` từ Axios error và checkout hiện mã hỗ trợ cho lỗi API không dự đoán được. Validation/401 vẫn có UX riêng, lỗi mạng không có response không tạo mã giả. Backend log và UI giờ có thể nối bằng cùng correlation ID; chưa có trang lỗi dùng chung hoặc log aggregation để tra cứu mã trên staging.

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router'
 import { useAuthStore } from '../../auth/stores/auth-store'
 import { createOrder } from '../../orders/api/orders'
 import { checkoutSchema, type CheckoutFormInput } from '../../orders/schemas/checkout'
-import { isAuthenticationError, isValidationError } from '../../../shared/api/errors'
+import { isAuthenticationError, isValidationError, withSupportCode } from '../../../shared/api/errors'
 import { getCartTotal, useCartStore } from '../stores/cart-store'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
@@ -70,7 +70,10 @@ export function CartPage() {
       } else if (isValidationError(requestError)) {
         setError('Đơn hàng không còn hợp lệ. Có thể giá, sản phẩm hoặc tồn kho đã thay đổi; hãy kiểm tra lại giỏ hàng.')
       } else {
-        setError('Chưa tạo được đơn hàng. Giỏ hàng vẫn được giữ nguyên để bạn thử lại.')
+        setError(withSupportCode(
+          'Chưa tạo được đơn hàng. Giỏ hàng vẫn được giữ nguyên để bạn thử lại.',
+          requestError,
+        ))
       }
     } finally {
       inFlight.current = false
