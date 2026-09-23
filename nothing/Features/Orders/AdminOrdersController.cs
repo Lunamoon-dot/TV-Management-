@@ -106,11 +106,60 @@ public class AdminOrdersController : ControllerBase
                         ChangedAt = history.ChangedAt,
                         ChangedByEmail = history.ChangedByEmail,
                         Reason = history.Reason
+                    }).ToList(),
+                Notes = order.Notes
+                    .OrderByDescending(note => note.CreatedAt)
+                    .ThenByDescending(note => note.Id)
+                    .Select(note => new OrderNoteResponse
+                    {
+                        Id = note.Id,
+                        Content = note.Content,
+                        CreatedAt = note.CreatedAt,
+                        CreatedByEmail = note.CreatedByEmail
                     }).ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
 
         return order is null ? NotFound() : Ok(order);
+    }
+
+    [ValidateAntiForgeryToken]
+    [HttpPost("{id:int}/notes")]
+    public async Task<ActionResult<OrderNoteResponse>> CreateNote(
+        int id,
+        CreateOrderNoteRequest request,
+        CancellationToken cancellationToken)
+    {
+        var content = request.Content.Trim();
+        if (content.Length < 3)
+        {
+            ModelState.AddModelError(nameof(request.Content), "Note must be at least 3 characters.");
+            return ValidationProblem(ModelState);
+        }
+
+        if (!await _context.Orders.AnyAsync(order => order.Id == id, cancellationToken))
+            return NotFound();
+
+        var admin = await _userManager.GetUserAsync(User);
+        if (admin?.Email is null) return Unauthorized();
+
+        var note = new OrderNote
+        {
+            OrderId = id,
+            Content = content,
+            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedByEmail = admin.Email
+        };
+        _context.OrderNotes.Add(note);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return StatusCode(StatusCodes.Status201Created, new OrderNoteResponse
+        {
+            Id = note.Id,
+            Content = note.Content,
+            CreatedAt = note.CreatedAt,
+            CreatedByEmail = note.CreatedByEmail
+        });
     }
 
     [ValidateAntiForgeryToken]

@@ -26,4 +26,5 @@ public class AdminOrderDetailsResponse
     public decimal TotalAmount { get; set; }
     public List<OrderItemResponse> Items { get; set; } = [];
     public List<OrderStatusHistoryResponse> StatusHistory { get; set; } = [];
+    public List<OrderNoteResponse> Notes { get; set; } = [];
 }

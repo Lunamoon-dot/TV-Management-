@@ -175,3 +175,7 @@ Admin có trang chi tiết tại `/admin/orders/:id` và API projection trả th
 ## Tiến độ Order Status — bài38
 
 Hủy đơn bắt buộc reason 5–300 ký tự ở cả Customer và Admin; Zod và backend cùng validate. Reason nằm trên sự kiện Cancelled trong timeline và được commit cùng hoàn kho/trạng thái. Chưa có reason code phục vụ thống kê hoặc ghi chú nội bộ không gắn với transition.
+
+## Tiến độ Admin Orders — bài39
+
+Admin có thể thêm và đọc ghi chú nội bộ trên chi tiết đơn; mỗi note lưu nội dung, thời gian và snapshot email người tạo. API dùng role + CSRF, Customer bị chặn và DTO Customer không trả notes. Chưa hỗ trợ sửa/xóa note, nhờ đó lịch sử trao đổi hiện tại chỉ được bổ sung.

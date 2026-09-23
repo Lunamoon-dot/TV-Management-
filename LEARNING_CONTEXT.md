@@ -90,6 +90,10 @@ Thêm `OrderStatusHistory` lưu previous/new status, thời gian và email actor
 
 Customer và Admin phải nhập lý do 5–300 ký tự khi hủy. React dùng chung Zod schema; backend DTO + kiểm tra sau Trim bảo vệ lại. Reason được lưu nullable trên đúng `OrderStatusHistory` Cancelled và hiển thị trong timeline Admin. Migration `20260923090846_AddOrderCancellationReason` đã apply. Integration test xác nhận invalid 400, actor/reason đúng, hủy lặp và Paid vẫn bị chặn. Xem `lessons/38-order-cancellation-reason.md`.
 
+## Tiến độ Admin Orders — bài 39
+
+Thêm `OrderNote` cho ghi chú vận hành nội bộ, tách khỏi status history. Admin POST note với CSRF, nội dung 3–1000 ký tự, actor lấy từ Identity; chi tiết Admin hiển thị mới nhất trước và thêm note vào state sau 201. Customer gọi endpoint nhận 403 và OrderResponse không có notes. Migration `20260923091536_AddOrderNotes` đã apply. Xem `lessons/39-admin-order-notes.md`.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

@@ -33,4 +33,6 @@ public class Order
     public List<OrderItem> Items { get; set; } = [];
 
     public List<OrderStatusHistory> StatusHistory { get; set; } = [];
+
+    public List<OrderNote> Notes { get; set; } = [];
 }

@@ -21,6 +21,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
 
+    public DbSet<OrderNote> OrderNotes { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -166,5 +168,24 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<OrderStatusHistory>()
             .HasIndex(history => new { history.OrderId, history.ChangedAt });
+
+        modelBuilder.Entity<OrderNote>()
+            .HasOne(note => note.Order)
+            .WithMany(order => order.Notes)
+            .HasForeignKey(note => note.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<OrderNote>()
+            .Property(note => note.Content)
+            .HasMaxLength(1000)
+            .IsRequired();
+
+        modelBuilder.Entity<OrderNote>()
+            .Property(note => note.CreatedByEmail)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        modelBuilder.Entity<OrderNote>()
+            .HasIndex(note => new { note.OrderId, note.CreatedAt });
     }
 }

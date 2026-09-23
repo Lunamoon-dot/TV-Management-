@@ -53,12 +53,23 @@ try {
 
     Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders" -WebSession $customer -SkipHttpErrorCheck) 403 'customer cannot list admin orders'
     Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId" -WebSession $customer -SkipHttpErrorCheck) 403 'customer cannot read admin order detail'
+    Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/notes" -WebSession $customer -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body (@{ content='Customer must not add internal notes' } | ConvertTo-Json) -SkipHttpErrorCheck) 403 'customer cannot add internal note'
     $adminOrders = Invoke-RestMethod "$BaseUrl/api/admin/orders?page=1&pageSize=20" -WebSession $admin
     if (-not ($adminOrders.items | Where-Object id -eq $orderId)) { throw 'Admin list does not contain the order.' }
     Write-Output 'PASS: admin sees order'
     $adminDetails = Invoke-RestMethod "$BaseUrl/api/admin/orders/$orderId" -WebSession $admin
     if ($adminDetails.id -ne $orderId -or $adminDetails.customerEmail -ne $customerEmail -or $adminDetails.recipientName -ne 'Nguyen Van Test' -or $adminDetails.items[0].productId -ne $productId) { throw 'Admin order detail response is incorrect.' }
     Write-Output 'PASS: admin sees shipping and item details'
+
+    $token = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $admin).token
+    Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/notes" -WebSession $admin -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body (@{ content='  ' } | ConvertTo-Json) -SkipHttpErrorCheck) 400 'blank internal note'
+    $noteResponse = Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/notes" -WebSession $admin -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body (@{ content='  Da goi xac nhan dia chi  ' } | ConvertTo-Json) -SkipHttpErrorCheck
+    Expect $noteResponse 201 'admin adds internal note'
+    $note = $noteResponse.Content | ConvertFrom-Json
+    if ($note.content -ne 'Da goi xac nhan dia chi' -or $note.createdByEmail -ne $adminEmail) { throw 'Created internal note response is incorrect.' }
+    $detailsWithNote = Invoke-RestMethod "$BaseUrl/api/admin/orders/$orderId" -WebSession $admin
+    if ($detailsWithNote.notes.Count -ne 1 -or $detailsWithNote.notes[0].id -ne $note.id) { throw 'Admin detail does not contain internal note.' }
+    Write-Output 'PASS: admin sees internal note in order details'
 
     Change-Status 'Completed' 400
     Change-Status 'Confirmed' 204
@@ -77,6 +88,7 @@ try {
 
     $customerOrder = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $customer
     if ($customerOrder.status -ne 'Cancelled') { throw 'Customer does not see updated status.' }
+    if ($null -ne $customerOrder.PSObject.Properties['notes']) { throw 'Customer response leaked internal notes.' }
     $productAfterCancel = Invoke-RestMethod "$BaseUrl/api/products/$productId"
     if ($productAfterCancel.stock -ne $stockBefore) { throw 'Cancelling did not restore product stock.' }
     Write-Output 'PASS: customer sees Cancelled and stock is restored once'

@@ -28,6 +28,7 @@ export interface AdminOrderDetailsResponse extends Omit<AdminOrderResponse, 'ite
   shippingAddress: string
   items: OrderItemResponse[]
   statusHistory: OrderStatusHistoryResponse[]
+  notes: OrderNoteResponse[]
 }
 
 export interface OrderStatusHistoryResponse {
@@ -36,6 +37,13 @@ export interface OrderStatusHistoryResponse {
   changedAt: string
   changedByEmail: string
   reason: string | null
+}
+
+export interface OrderNoteResponse {
+  id: number
+  content: string
+  createdAt: string
+  createdByEmail: string
 }
 
 export async function getAdminOrders(signal: AbortSignal, page: number): Promise<AdminOrderPageResponse> {
@@ -55,4 +63,10 @@ export async function updateOrderStatus(id: number, status: OrderStatus, reason?
 
 export async function updatePaymentStatus(id: number, status: PaymentStatus): Promise<void> {
   await http.put(`/admin/orders/${id}/payment-status`, { status }, { headers: await getCsrfHeaders() })
+}
+
+export async function createOrderNote(id: number, content: string): Promise<OrderNoteResponse> {
+  return (await http.post<OrderNoteResponse>(`/admin/orders/${id}/notes`, { content }, {
+    headers: await getCsrfHeaders(),
+  })).data
 }

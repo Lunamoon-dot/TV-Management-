@@ -3,7 +3,8 @@ import { Link, useParams } from 'react-router'
 import { isNotFoundError } from '../../../shared/api/errors'
 import { OrderStatusBadge } from '../../orders/components/OrderStatusBadge'
 import { PaymentSummary } from '../../orders/components/PaymentSummary'
-import { getAdminOrderById, type AdminOrderDetailsResponse } from '../api/orders'
+import { createOrderNote, getAdminOrderById, type AdminOrderDetailsResponse } from '../api/orders'
+import { orderNoteSchema } from '../schemas/order-note'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
@@ -25,6 +26,30 @@ export function AdminOrderDetailsPage() {
   const validId = /^\d+$/.test(id ?? '') && Number.isInteger(orderId) && orderId > 0 && orderId <= 2147483647
   const [state, setState] = useState<DetailsState>({ status: 'loading' })
   const [retry, setRetry] = useState(0)
+  const [noteContent, setNoteContent] = useState('')
+  const [noteError, setNoteError] = useState('')
+  const [savingNote, setSavingNote] = useState(false)
+
+  async function addNote() {
+    const parsed = orderNoteSchema.safeParse({ content: noteContent })
+    if (!parsed.success) {
+      setNoteError(parsed.error.issues[0]?.message ?? 'Ghi chú không hợp lệ.')
+      return
+    }
+    setSavingNote(true)
+    setNoteError('')
+    try {
+      const note = await createOrderNote(orderId, parsed.data.content)
+      setState(current => current.status === 'success'
+        ? { status: 'success', order: { ...current.order, notes: [note, ...current.order.notes] } }
+        : current)
+      setNoteContent('')
+    } catch {
+      setNoteError('Không lưu được ghi chú. Hãy thử lại.')
+    } finally {
+      setSavingNote(false)
+    }
+  }
 
   useEffect(() => {
     if (!validId) return
@@ -78,6 +103,22 @@ export function AdminOrderDetailsPage() {
             <p className="mt-1 text-sm text-[#52645e]">{dateTime.format(new Date(history.changedAt))} · {history.changedByEmail}</p>
             {history.reason && <p className="mt-1 text-sm">Lý do: {history.reason}</p>}
           </li>)}</ol>}
+    </section>
+    <section className="mt-6 rounded-lg border border-[#d2d9d4] bg-white p-6">
+      <h2 className="text-xl font-semibold">Ghi chú nội bộ</h2>
+      <form className="mt-4" onSubmit={event => { event.preventDefault(); void addNote() }}>
+        <label htmlFor="order-note" className="sr-only">Nội dung ghi chú</label>
+        <textarea id="order-note" value={noteContent} maxLength={1000} rows={3} disabled={savingNote}
+          onChange={event => setNoteContent(event.target.value)} placeholder="Ví dụ: Đã gọi xác nhận địa chỉ giao hàng"
+          className="block w-full rounded-md border border-[#b8c4bd] bg-white p-3" />
+        <button type="submit" disabled={savingNote} className="mt-3 cursor-pointer rounded-md bg-[#254c40] px-4 py-2 font-semibold text-white disabled:cursor-wait disabled:opacity-60">{savingNote ? 'Đang lưu…' : 'Thêm ghi chú'}</button>
+      </form>
+      {noteError && <p role="alert" className="mt-3 text-sm text-red-800">{noteError}</p>}
+      {order.notes.length === 0 ? <p className="mt-5 text-sm text-[#52645e]">Chưa có ghi chú nội bộ.</p> :
+        <ul className="mt-5 divide-y divide-[#e1e5e2]">{order.notes.map(note => <li key={note.id} className="py-4 first:pt-0 last:pb-0">
+          <p className="whitespace-pre-wrap">{note.content}</p>
+          <p className="mt-1 text-xs text-[#52645e]">{dateTime.format(new Date(note.createdAt))} · {note.createdByEmail}</p>
+        </li>)}</ul>}
     </section>
   </main>
 }
