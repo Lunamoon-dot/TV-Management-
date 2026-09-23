@@ -16,6 +16,7 @@ import { AdminProductsPage } from '../features/admin/pages/AdminProductsPage'
 import { RequireAuthenticated } from '../features/auth/components/RequireAuthenticated'
 import { OrderHistoryPage } from '../features/orders/pages/OrderHistoryPage'
 import { AdminOrdersPage } from '../features/admin/pages/AdminOrdersPage'
+import { AdminOrderDetailsPage } from '../features/admin/pages/AdminOrderDetailsPage'
 
 export default function App() {
   const refresh = useAuthStore(state => state.refresh)
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="products/new" element={<CreateProductPage />} />
         <Route path="products/:id/edit" element={<EditProductPage />} />
         <Route path="orders" element={<AdminOrdersPage />} />
+        <Route path="orders/:id" element={<AdminOrderDetailsPage />} />
       </Route>
     </Routes>
   )

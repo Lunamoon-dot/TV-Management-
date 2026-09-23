@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { OrderStatusBadge } from '../../orders/components/OrderStatusBadge'
 import { PaymentSummary } from '../../orders/components/PaymentSummary'
 import type { OrderStatus } from '../../orders/types'
@@ -87,7 +88,7 @@ export function AdminOrdersPage() {
             <th className="px-5 py-4">Đơn</th><th className="px-5 py-4">Khách hàng</th><th className="px-5 py-4">Tổng tiền</th><th className="px-5 py-4">Thanh toán</th><th className="px-5 py-4">Trạng thái</th><th className="px-5 py-4">Thao tác</th>
           </tr></thead>
           <tbody className="divide-y divide-[#e1e5e2]">{state.data.items.map(order => <tr key={order.id}>
-            <td className="px-5 py-4"><p className="font-semibold">#{order.id}</p><p className="mt-1 text-xs text-[#52645e]">{dateTime.format(new Date(order.createdAt))} · {order.itemCount} dòng</p></td>
+            <td className="px-5 py-4"><Link to={`/admin/orders/${order.id}`} className="font-semibold underline underline-offset-4">#{order.id}</Link><p className="mt-1 text-xs text-[#52645e]">{dateTime.format(new Date(order.createdAt))} · {order.itemCount} dòng</p></td>
             <td className="px-5 py-4">{order.customerEmail}</td>
             <td className="px-5 py-4 font-semibold">{money.format(order.totalAmount)}</td>
             <td className="px-5 py-4 text-sm"><PaymentSummary method={order.paymentMethod} status={order.paymentStatus} />

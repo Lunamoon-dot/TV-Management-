@@ -63,6 +63,44 @@ public class AdminOrdersController : ControllerBase
         });
     }
 
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<AdminOrderDetailsResponse>> GetById(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var order = await _context.Orders
+            .Where(order => order.Id == id)
+            .Select(order => new AdminOrderDetailsResponse
+            {
+                Id = order.Id,
+                CustomerEmail = order.Customer.Email ?? string.Empty,
+                CreatedAt = order.CreatedAt,
+                RecipientName = order.RecipientName,
+                PhoneNumber = order.PhoneNumber,
+                ShippingAddress = order.ShippingAddress,
+                Status = order.Status,
+                PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.PaymentStatus,
+                PaidAt = order.PaidAt,
+                PaymentConfirmedByEmail = order.PaymentConfirmedByEmail,
+                TotalAmount = order.TotalAmount,
+                Items = order.Items
+                    .OrderBy(item => item.Id)
+                    .Select(item => new OrderItemResponse
+                    {
+                        ProductId = item.ProductId,
+                        ProductName = item.ProductName,
+                        BrandName = item.BrandName,
+                        UnitPrice = item.UnitPrice,
+                        Quantity = item.Quantity,
+                        LineTotal = item.LineTotal
+                    }).ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return order is null ? NotFound() : Ok(order);
+    }
+
     [ValidateAntiForgeryToken]
     [HttpPut("{id:int}/payment-status")]
     public async Task<IActionResult> UpdatePaymentStatus(

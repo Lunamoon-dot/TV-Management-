@@ -78,6 +78,10 @@ Admin có thể xác nhận Unpaid thành Paid qua endpoint role Admin + CSRF; g
 
 Xác nhận Paid lưu thêm PaidAt và email Admin dạng snapshot. Retry không ghi đè audit ban đầu. Customer thấy thời điểm, còn email người xác nhận chỉ trả trong Admin API. Đây là audit tối thiểu trên Order, chưa phải bảng audit event tổng quát.
 
+## Tiến độ Admin Orders — bài 36
+
+Admin có `GET /api/admin/orders/{id}` projection sang DTO chi tiết gồm Customer email, snapshot giao hàng, payment audit và items. React có `/admin/orders/:id`, link từ bảng cùng loading/error/404. Customer bị chặn 403; Admin đọc đúng giao hàng/item. Không đổi schema hoặc migration. Xem `lessons/36-admin-order-details.md`.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

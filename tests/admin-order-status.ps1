@@ -50,9 +50,13 @@ try {
     $orderId = $created.id
 
     Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders" -WebSession $customer -SkipHttpErrorCheck) 403 'customer cannot list admin orders'
+    Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId" -WebSession $customer -SkipHttpErrorCheck) 403 'customer cannot read admin order detail'
     $adminOrders = Invoke-RestMethod "$BaseUrl/api/admin/orders?page=1&pageSize=20" -WebSession $admin
     if (-not ($adminOrders.items | Where-Object id -eq $orderId)) { throw 'Admin list does not contain the order.' }
     Write-Output 'PASS: admin sees order'
+    $adminDetails = Invoke-RestMethod "$BaseUrl/api/admin/orders/$orderId" -WebSession $admin
+    if ($adminDetails.id -ne $orderId -or $adminDetails.customerEmail -ne $customerEmail -or $adminDetails.recipientName -ne 'Nguyen Van Test' -or $adminDetails.items[0].productId -ne $productId) { throw 'Admin order detail response is incorrect.' }
+    Write-Output 'PASS: admin sees shipping and item details'
 
     Change-Status 'Completed' 400
     Change-Status 'Confirmed' 204
