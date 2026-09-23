@@ -219,3 +219,7 @@ React có helper đọc `X-Correlation-ID` từ Axios error và checkout hiện 
 ## Tiến độ CI — bài49
 
 GitHub Actions chạy trên push main và pull request: Node 22 npm ci/lint/51 tests, .NET 10 restore/Release build, publish artifact same-origin và kiểm tra backend DLL + React index. Workflow có read-only contents permission, concurrency cancellation và timeout. Integration test SQL/PowerShell, E2E, artifact upload và CD chưa nằm trong workflow đầu tiên.
+
+## Tiến độ backend tests — bài50
+
+Thêm xUnit project vào solution và tách `OrderStatusPolicy` cho transition cùng quyền hủy Customer/Admin. 12 unit tests chạy trong CI trước publish; regression integration Admin Orders vẫn đạt với HTTP/Identity/EF/SQL thật. SQL integration tests vẫn chạy local, chưa dựng database service trong GitHub Actions.

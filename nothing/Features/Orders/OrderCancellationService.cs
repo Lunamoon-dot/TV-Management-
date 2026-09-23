@@ -77,8 +77,9 @@ public class OrderCancellationService
                 return CancelOrderResult.InvalidStatus;
             }
 
-            var canCancel = order.Status == OrderStatus.Pending
-                || allowConfirmed && order.Status == OrderStatus.Confirmed;
+            var canCancel = allowConfirmed
+                ? OrderStatusPolicy.CanAdminCancel(order.Status)
+                : OrderStatusPolicy.CanCustomerCancel(order.Status);
             if (!canCancel)
             {
                 _logger.LogWarning(

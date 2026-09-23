@@ -46,10 +46,13 @@ jobs:
         run: npm test
 
       - name: Restore backend dependencies
-        run: dotnet restore nothing/nothing.csproj
+        run: dotnet restore nothing.slnx
 
       - name: Build backend
-        run: dotnet build nothing/nothing.csproj --configuration Release --no-restore
+        run: dotnet build nothing.slnx --configuration Release --no-restore
+
+      - name: Test backend
+        run: dotnet test nothing.Tests/nothing.Tests.csproj --configuration Release --no-build --no-restore
 
       - name: Create deploy artifact
         run: dotnet publish nothing/nothing.csproj --configuration Release --no-build --no-restore --output artifacts/app

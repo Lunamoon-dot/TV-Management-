@@ -253,7 +253,7 @@ public class AdminOrdersController : ControllerBase
                 .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
             if (order is null) return NotFound();
 
-            if (!CanTransition(order.Status, nextStatus))
+            if (!OrderStatusPolicy.CanTransition(order.Status, nextStatus))
             {
                 _logger.LogWarning(
                     "Rejected order {OrderId} status transition from {PreviousStatus} to {NextStatus}",
@@ -291,14 +291,4 @@ public class AdminOrdersController : ControllerBase
         return ValidationProblem(ModelState);
     }
 
-    private static bool CanTransition(OrderStatus current, OrderStatus next) =>
-        (current, next) switch
-        {
-            (OrderStatus.Pending, OrderStatus.Confirmed) => true,
-            (OrderStatus.Pending, OrderStatus.Cancelled) => true,
-            (OrderStatus.Confirmed, OrderStatus.Shipped) => true,
-            (OrderStatus.Confirmed, OrderStatus.Cancelled) => true,
-            (OrderStatus.Shipped, OrderStatus.Completed) => true,
-            _ => false
-        };
 }
