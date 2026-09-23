@@ -171,3 +171,7 @@ Admin có trang chi tiết tại `/admin/orders/:id` và API projection trả th
 ## Tiến độ Order Status — bài37
 
 Đơn hàng có timeline trạng thái bất biến: trạng thái cũ/mới, thời gian và email người thao tác. Tạo đơn và mọi transition hợp lệ đều ghi trong cùng transaction; migration backfill mốc hiện tại cho đơn cũ. Admin xem timeline ở chi tiết đơn. Chưa có ghi chú nội bộ, lý do hủy hoặc audit cho các thay đổi ngoài trạng thái.
+
+## Tiến độ Order Status — bài38
+
+Hủy đơn bắt buộc reason 5–300 ký tự ở cả Customer và Admin; Zod và backend cùng validate. Reason nằm trên sự kiện Cancelled trong timeline và được commit cùng hoàn kho/trạng thái. Chưa có reason code phục vụ thống kê hoặc ghi chú nội bộ không gắn với transition.

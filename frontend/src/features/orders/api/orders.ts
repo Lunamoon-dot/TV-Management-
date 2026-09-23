@@ -21,8 +21,8 @@ export async function getOrderById(id: number, signal: AbortSignal): Promise<Ord
   return (await http.get<OrderResponse>(`/orders/${id}`, { signal })).data
 }
 
-export async function cancelOrder(id: number): Promise<void> {
-  await http.post(`/orders/${id}/cancel`, undefined, {
+export async function cancelOrder(id: number, reason: string): Promise<void> {
+  await http.post(`/orders/${id}/cancel`, { reason }, {
     headers: await getCsrfHeaders(),
   })
 }

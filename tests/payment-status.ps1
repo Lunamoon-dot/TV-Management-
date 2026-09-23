@@ -41,7 +41,7 @@ try {
     $adminOrder = (Invoke-RestMethod "$BaseUrl/api/admin/orders?page=1&pageSize=20" -WebSession $admin).items | Where-Object id -eq $orderId
     if ($adminOrder.paymentConfirmedByEmail -ne $adminEmail -or -not $adminOrder.paidAt) { throw 'Admin payment audit data is incorrect.' }
     Write-Output 'PASS: payment audit records original time and admin email'
-    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $customer -Method Post -Headers @{ 'X-CSRF-TOKEN'=$customerToken } -SkipHttpErrorCheck) 400 'paid order cannot be cancelled'
+    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $customer -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$customerToken } -Body (@{ reason='Toi muon huy don hang' } | ConvertTo-Json) -SkipHttpErrorCheck) 400 'paid order cannot be cancelled'
 } finally {
     $cleanup = "IF $orderId > 0 BEGIN UPDATE Products SET Stock=Stock+1 WHERE Id=$productId; DELETE FROM OrderItems WHERE OrderId=$orderId; DELETE FROM Orders WHERE Id=$orderId; END; DELETE FROM AspNetUsers WHERE Email IN ('$customerEmail','$adminEmail');"
     & sqlcmd -S $SqlServer -d $Database -E -C -I -b -Q $cleanup | Out-Null

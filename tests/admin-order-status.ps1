@@ -29,7 +29,9 @@ function Login($session, [string]$email) {
 
 function Change-Status([string]$status, [int]$expected) {
     $token = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $admin).token
-    $response = Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/status" -WebSession $admin -Method Put -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body (@{ status=$status } | ConvertTo-Json) -SkipHttpErrorCheck
+    $body = @{ status=$status }
+    if ($status -eq 'Cancelled') { $body.reason = 'Khach hang yeu cau huy don' }
+    $response = Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/status" -WebSession $admin -Method Put -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body ($body | ConvertTo-Json) -SkipHttpErrorCheck
     Expect $response $expected "change status to $status"
 }
 
@@ -60,6 +62,8 @@ try {
 
     Change-Status 'Completed' 400
     Change-Status 'Confirmed' 204
+    $token = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $admin).token
+    Expect (Invoke-WebRequest "$BaseUrl/api/admin/orders/$orderId/status" -WebSession $admin -Method Put -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$token } -Body (@{ status='Cancelled' } | ConvertTo-Json) -SkipHttpErrorCheck) 400 'cancel without reason'
     Change-Status 'Cancelled' 204
     $stockRestored = $true
     Change-Status 'Cancelled' 400
@@ -68,7 +72,7 @@ try {
     if ($historyDetails.statusHistory.Count -ne 3) { throw "Expected 3 status history entries, got $($historyDetails.statusHistory.Count)." }
     if ($historyDetails.statusHistory[0].newStatus -ne 'Pending' -or $historyDetails.statusHistory[0].changedByEmail -ne $customerEmail) { throw 'Initial status history is incorrect.' }
     if ($historyDetails.statusHistory[1].previousStatus -ne 'Pending' -or $historyDetails.statusHistory[1].newStatus -ne 'Confirmed' -or $historyDetails.statusHistory[1].changedByEmail -ne $adminEmail) { throw 'Confirmed status history is incorrect.' }
-    if ($historyDetails.statusHistory[2].previousStatus -ne 'Confirmed' -or $historyDetails.statusHistory[2].newStatus -ne 'Cancelled' -or $historyDetails.statusHistory[2].changedByEmail -ne $adminEmail) { throw 'Cancelled status history is incorrect.' }
+    if ($historyDetails.statusHistory[2].previousStatus -ne 'Confirmed' -or $historyDetails.statusHistory[2].newStatus -ne 'Cancelled' -or $historyDetails.statusHistory[2].changedByEmail -ne $adminEmail -or $historyDetails.statusHistory[2].reason -ne 'Khach hang yeu cau huy don') { throw 'Cancelled status history is incorrect.' }
     Write-Output 'PASS: status history records actor and transitions'
 
     $customerOrder = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $customer

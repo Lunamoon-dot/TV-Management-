@@ -29,12 +29,27 @@ public class OrdersController : ControllerBase
 
     [ValidateAntiForgeryToken]
     [HttpPost("{id:int}/cancel")]
-    public async Task<IActionResult> Cancel(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Cancel(
+        int id,
+        CancelOrderRequest request,
+        CancellationToken cancellationToken)
     {
+        var reason = request.Reason.Trim();
+        if (reason.Length < 5)
+        {
+            ModelState.AddModelError(nameof(request.Reason), "Cancellation reason must be at least 5 characters.");
+            return ValidationProblem(ModelState);
+        }
+
         var user = await _userManager.GetUserAsync(User);
         if (user?.Email is null) return Unauthorized();
 
-        return await _cancellationService.CancelByCustomerAsync(id, user.Id, user.Email, cancellationToken) switch
+        return await _cancellationService.CancelByCustomerAsync(
+            id,
+            user.Id,
+            user.Email,
+            reason,
+            cancellationToken) switch
         {
             CancelOrderResult.Success => NoContent(),
             CancelOrderResult.NotFound => NotFound(),

@@ -25,19 +25,22 @@ public class OrderCancellationService
         int id,
         string customerId,
         string changedByEmail,
+        string reason,
         CancellationToken cancellationToken) =>
-        CancelAsync(id, customerId, changedByEmail, allowConfirmed: false, cancellationToken);
+        CancelAsync(id, customerId, changedByEmail, reason, allowConfirmed: false, cancellationToken);
 
     public Task<CancelOrderResult> CancelByAdminAsync(
         int id,
         string changedByEmail,
+        string reason,
         CancellationToken cancellationToken) =>
-        CancelAsync(id, customerId: null, changedByEmail, allowConfirmed: true, cancellationToken);
+        CancelAsync(id, customerId: null, changedByEmail, reason, allowConfirmed: true, cancellationToken);
 
     private async Task<CancelOrderResult> CancelAsync(
         int id,
         string? customerId,
         string changedByEmail,
+        string reason,
         bool allowConfirmed,
         CancellationToken cancellationToken)
     {
@@ -72,7 +75,8 @@ public class OrderCancellationService
             PreviousStatus = previousStatus,
             NewStatus = OrderStatus.Cancelled,
             ChangedAt = DateTimeOffset.UtcNow,
-            ChangedByEmail = changedByEmail
+            ChangedByEmail = changedByEmail,
+            Reason = reason.Trim()
         });
         await _context.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

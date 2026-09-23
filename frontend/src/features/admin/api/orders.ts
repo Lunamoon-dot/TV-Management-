@@ -35,6 +35,7 @@ export interface OrderStatusHistoryResponse {
   newStatus: OrderStatus
   changedAt: string
   changedByEmail: string
+  reason: string | null
 }
 
 export async function getAdminOrders(signal: AbortSignal, page: number): Promise<AdminOrderPageResponse> {
@@ -48,8 +49,8 @@ export async function getAdminOrderById(id: number, signal: AbortSignal): Promis
   return (await http.get<AdminOrderDetailsResponse>(`/admin/orders/${id}`, { signal })).data
 }
 
-export async function updateOrderStatus(id: number, status: OrderStatus): Promise<void> {
-  await http.put(`/admin/orders/${id}/status`, { status }, { headers: await getCsrfHeaders() })
+export async function updateOrderStatus(id: number, status: OrderStatus, reason?: string): Promise<void> {
+  await http.put(`/admin/orders/${id}/status`, { status, reason }, { headers: await getCsrfHeaders() })
 }
 
 export async function updatePaymentStatus(id: number, status: PaymentStatus): Promise<void> {

@@ -4,6 +4,7 @@ import { OrderStatusBadge } from '../../orders/components/OrderStatusBadge'
 import { PaymentSummary } from '../../orders/components/PaymentSummary'
 import type { OrderStatus } from '../../orders/types'
 import { getAdminOrders, updateOrderStatus, updatePaymentStatus, type AdminOrderPageResponse } from '../api/orders'
+import { cancelOrderSchema } from '../../orders/schemas/cancel-order'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' })
@@ -24,6 +25,8 @@ export function AdminOrdersPage() {
   const [state, setState] = useState<PageState>({ status: 'loading' })
   const [updatingId, setUpdatingId] = useState<number>()
   const [error, setError] = useState('')
+  const [cancellationTarget, setCancellationTarget] = useState<number>()
+  const [cancellationReason, setCancellationReason] = useState('')
 
   useEffect(() => {
     const controller = new AbortController()
@@ -37,12 +40,12 @@ export function AdminOrdersPage() {
     return () => controller.abort()
   }, [page, retry])
 
-  async function changeStatus(id: number, status: OrderStatus) {
+  async function changeStatus(id: number, status: OrderStatus, reason?: string) {
     if (updatingId !== undefined) return
     setUpdatingId(id)
     setError('')
     try {
-      await updateOrderStatus(id, status)
+      await updateOrderStatus(id, status, reason)
       setState(current => current.status === 'success'
         ? { status: 'success', data: { ...current.data, items: current.data.items.map(order => order.id === id ? { ...order, status } : order) } }
         : current)
@@ -51,6 +54,23 @@ export function AdminOrdersPage() {
     } finally {
       setUpdatingId(undefined)
     }
+  }
+
+  function submitCancellation(id: number) {
+    const parsed = cancelOrderSchema.safeParse({ reason: cancellationReason })
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? 'Lý do hủy không hợp lệ.')
+      return
+    }
+    setCancellationTarget(undefined)
+    setCancellationReason('')
+    void changeStatus(id, 'Cancelled', parsed.data.reason)
+  }
+
+  function beginCancellation(id: number) {
+    setCancellationTarget(id)
+    setCancellationReason('')
+    setError('')
   }
 
   async function markPaid(id: number) {
@@ -99,7 +119,13 @@ export function AdminOrdersPage() {
             </td>
             <td className="px-5 py-4"><OrderStatusBadge status={order.status} /></td>
             <td className="px-5 py-4"><div className="flex gap-3">{(actions[order.status] ?? []).filter(action => action.status !== 'Cancelled' || order.paymentStatus === 'Unpaid').map(action => <button key={action.status} type="button" disabled={updatingId !== undefined}
-              className="cursor-pointer underline disabled:cursor-wait disabled:opacity-40" onClick={() => void changeStatus(order.id, action.status)}>{action.label}</button>)}</div></td>
+              className="cursor-pointer underline disabled:cursor-wait disabled:opacity-40" onClick={() => action.status === 'Cancelled' ? beginCancellation(order.id) : void changeStatus(order.id, action.status)}>{action.label}</button>)}</div>
+              {cancellationTarget === order.id && <form className="mt-3 w-64" onSubmit={event => { event.preventDefault(); submitCancellation(order.id) }}>
+                <label htmlFor={`admin-cancel-${order.id}`} className="text-sm font-semibold">Lý do hủy</label>
+                <textarea id={`admin-cancel-${order.id}`} value={cancellationReason} maxLength={300} rows={2} onChange={event => setCancellationReason(event.target.value)} className="mt-1 w-full rounded border border-[#b8c4bd] p-2 text-sm" />
+                <div className="mt-2 flex gap-3 text-sm"><button type="submit" className="cursor-pointer font-semibold text-red-800 underline">Xác nhận</button><button type="button" className="cursor-pointer underline" onClick={() => setCancellationTarget(undefined)}>Đóng</button></div>
+              </form>}
+            </td>
           </tr>)}</tbody>
         </table>
       </div>}

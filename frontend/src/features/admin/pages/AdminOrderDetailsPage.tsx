@@ -76,6 +76,7 @@ export function AdminOrderDetailsPage() {
           <li key={`${history.changedAt}-${index}`} className="relative before:absolute before:-left-[25px] before:top-1.5 before:size-2 before:rounded-full before:bg-[#254c40]">
             <p className="font-semibold">{history.previousStatus ? `${statusLabels[history.previousStatus]} → ` : ''}{statusLabels[history.newStatus]}</p>
             <p className="mt-1 text-sm text-[#52645e]">{dateTime.format(new Date(history.changedAt))} · {history.changedByEmail}</p>
+            {history.reason && <p className="mt-1 text-sm">Lý do: {history.reason}</p>}
           </li>)}</ol>}
     </section>
   </main>

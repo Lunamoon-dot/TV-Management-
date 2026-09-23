@@ -9,4 +9,5 @@ public class OrderStatusHistory
     public OrderStatus NewStatus { get; set; }
     public DateTimeOffset ChangedAt { get; set; }
     public string ChangedByEmail { get; set; } = string.Empty;
+    public string? Reason { get; set; }
 }

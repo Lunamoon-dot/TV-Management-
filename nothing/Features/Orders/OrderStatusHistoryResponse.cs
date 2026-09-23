@@ -13,4 +13,5 @@ public class OrderStatusHistoryResponse
 
     public DateTimeOffset ChangedAt { get; set; }
     public string ChangedByEmail { get; set; } = string.Empty;
+    public string? Reason { get; set; }
 }

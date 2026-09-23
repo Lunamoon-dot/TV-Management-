@@ -5,6 +5,7 @@ import { cancelOrder, getOrderById } from '../api/orders'
 import type { OrderResponse } from '../types'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
 import { PaymentSummary } from '../components/PaymentSummary'
+import { cancelOrderSchema } from '../schemas/cancel-order'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' })
@@ -28,13 +29,20 @@ function OrderDetails({ id }: { id: number }) {
   const [retry, setRetry] = useState(0)
   const [cancelling, setCancelling] = useState(false)
   const [cancelError, setCancelError] = useState('')
+  const [showCancelForm, setShowCancelForm] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
 
   async function cancel(order: OrderResponse) {
-    if (cancelling || !window.confirm('Bạn chắc chắn muốn hủy đơn hàng này?')) return
+    if (cancelling) return
+    const parsed = cancelOrderSchema.safeParse({ reason: cancelReason })
+    if (!parsed.success) {
+      setCancelError(parsed.error.issues[0]?.message ?? 'Lý do hủy không hợp lệ.')
+      return
+    }
     setCancelling(true)
     setCancelError('')
     try {
-      await cancelOrder(order.id)
+      await cancelOrder(order.id, parsed.data.reason)
       setState({ status: 'success', order: { ...order, status: 'Cancelled' } })
     } catch (error: unknown) {
       if (isAuthenticationError(error)) setCancelError('Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.')
@@ -79,10 +87,15 @@ function OrderDetails({ id }: { id: number }) {
     <h1 className="mt-3 text-3xl font-bold sm:text-5xl">Đơn hàng #{order.id}</h1>
     <div className="mt-5 flex flex-wrap items-center gap-3"><OrderStatusBadge status={order.status} /><span className="text-[#52645e]">{dateTime.format(new Date(order.createdAt))}</span></div>
     {order.status === 'Pending' && order.paymentStatus === 'Unpaid' && <div className="mt-6">
-      <button type="button" disabled={cancelling} onClick={() => void cancel(order)}
-        className="cursor-pointer rounded-md border border-red-800 px-4 py-2 text-red-800 disabled:cursor-wait disabled:opacity-60">
-        {cancelling ? 'Đang hủy…' : 'Hủy đơn hàng'}
-      </button>
+      {!showCancelForm ? <button type="button" onClick={() => setShowCancelForm(true)}
+        className="cursor-pointer rounded-md border border-red-800 px-4 py-2 text-red-800">Hủy đơn hàng</button> :
+        <form className="max-w-xl rounded-md border border-red-200 bg-red-50 p-4" onSubmit={event => { event.preventDefault(); void cancel(order) }}>
+          <label htmlFor="cancel-reason" className="font-semibold">Lý do hủy</label>
+          <textarea id="cancel-reason" value={cancelReason} maxLength={300} rows={3} disabled={cancelling}
+            onChange={event => setCancelReason(event.target.value)} className="mt-2 block w-full rounded-md border border-[#b8c4bd] bg-white p-3" />
+          <div className="mt-3 flex gap-4"><button type="submit" disabled={cancelling} className="cursor-pointer font-semibold text-red-800 underline disabled:cursor-wait disabled:opacity-60">{cancelling ? 'Đang hủy…' : 'Xác nhận hủy'}</button>
+            <button type="button" disabled={cancelling} className="cursor-pointer underline" onClick={() => { setShowCancelForm(false); setCancelError('') }}>Giữ đơn hàng</button></div>
+        </form>}
     </div>}
     {cancelError && <p role="alert" className="mt-3 text-sm text-red-800">{cancelError}</p>}
     <section className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-6">

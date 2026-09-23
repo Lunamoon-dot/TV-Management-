@@ -86,6 +86,10 @@ Admin có `GET /api/admin/orders/{id}` projection sang DTO chi tiết gồm Cust
 
 Thêm `OrderStatusHistory` lưu previous/new status, thời gian và email actor lấy từ Identity. Tạo đơn, Admin transition, Admin/Customer cancel đều ghi history cùng transaction; thao tác lỗi không ghi. Migration `20260923073347_AddOrderStatusHistory` đã apply và backfill một mốc cho đơn cũ. Admin detail hiển thị timeline và dùng `AsSplitQuery` cho Items + StatusHistory. Xem `lessons/37-order-status-history.md`.
 
+## Tiến độ Order Status — bài 38
+
+Customer và Admin phải nhập lý do 5–300 ký tự khi hủy. React dùng chung Zod schema; backend DTO + kiểm tra sau Trim bảo vệ lại. Reason được lưu nullable trên đúng `OrderStatusHistory` Cancelled và hiển thị trong timeline Admin. Migration `20260923090846_AddOrderCancellationReason` đã apply. Integration test xác nhận invalid 400, actor/reason đúng, hủy lặp và Paid vẫn bị chặn. Xem `lessons/38-order-cancellation-reason.md`.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

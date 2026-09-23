@@ -104,7 +104,8 @@ public class AdminOrdersController : ControllerBase
                         PreviousStatus = history.PreviousStatus,
                         NewStatus = history.NewStatus,
                         ChangedAt = history.ChangedAt,
-                        ChangedByEmail = history.ChangedByEmail
+                        ChangedByEmail = history.ChangedByEmail,
+                        Reason = history.Reason
                     }).ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
@@ -160,7 +161,18 @@ public class AdminOrdersController : ControllerBase
 
         if (nextStatus == OrderStatus.Cancelled)
         {
-            return await _cancellationService.CancelByAdminAsync(id, admin.Email, cancellationToken) switch
+            var reason = request.Reason?.Trim();
+            if (reason is null || reason.Length < 5)
+            {
+                ModelState.AddModelError(nameof(request.Reason), "Cancellation reason must be at least 5 characters.");
+                return ValidationProblem(ModelState);
+            }
+
+            return await _cancellationService.CancelByAdminAsync(
+                id,
+                admin.Email,
+                reason,
+                cancellationToken) switch
             {
                 CancelOrderResult.Success => NoContent(),
                 CancelOrderResult.NotFound => NotFound(),

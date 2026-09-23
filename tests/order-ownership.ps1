@@ -54,20 +54,22 @@ try {
 
     Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId" -WebSession $session2 -SkipHttpErrorCheck) 404 'other customer cannot read order'
     $otherCsrf = (Invoke-RestMethod "$BaseUrl/api/auth/csrf" -WebSession $session2).token
-    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session2 -Method Post -Headers @{ 'X-CSRF-TOKEN'=$otherCsrf } -SkipHttpErrorCheck) 404 'other customer cannot cancel order'
+    $cancelBody = @{ reason='Toi dat nham san pham' } | ConvertTo-Json
+    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session2 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$otherCsrf } -Body $cancelBody -SkipHttpErrorCheck) 404 'other customer cannot cancel order'
     $otherHistory = Invoke-RestMethod "$BaseUrl/api/orders?page=1&pageSize=10" -WebSession $session2
     if ($otherHistory.totalCount -ne 0) { throw 'Other customer history leaked an order.' }
     Write-Output 'PASS: histories are isolated by customer'
 
-    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session1 -Method Post -Headers @{ 'X-CSRF-TOKEN'=$csrf } -SkipHttpErrorCheck) 204 'owner cancels Pending order'
+    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session1 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$csrf } -Body (@{ reason='x' } | ConvertTo-Json) -SkipHttpErrorCheck) 400 'owner must provide valid cancellation reason'
+    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session1 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$csrf } -Body $cancelBody -SkipHttpErrorCheck) 204 'owner cancels Pending order'
     $stockRestored = $true
-    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session1 -Method Post -Headers @{ 'X-CSRF-TOKEN'=$csrf } -SkipHttpErrorCheck) 400 'owner cannot cancel twice'
+    Expect (Invoke-WebRequest "$BaseUrl/api/orders/$orderId/cancel" -WebSession $session1 -Method Post -ContentType 'application/json' -Headers @{ 'X-CSRF-TOKEN'=$csrf } -Body $cancelBody -SkipHttpErrorCheck) 400 'owner cannot cancel twice'
     $cancelled = Invoke-RestMethod "$BaseUrl/api/orders/$orderId" -WebSession $session1
     if ($cancelled.status -ne 'Cancelled') { throw 'Cancelled status was not returned to owner.' }
     Write-Output 'PASS: customer cancellation is visible and idempotent for stock'
 
-    $historyAudit = (& sqlcmd -S $SqlServer -d $Database -E -C -I -h -1 -W -Q "SET NOCOUNT ON; SELECT CONCAT(COUNT(*), '|', MAX(CASE WHEN NewStatus = 'Cancelled' THEN ChangedByEmail END)) FROM OrderStatusHistories WHERE OrderId = $orderId;").Trim()
-    if ($LASTEXITCODE -ne 0 -or $historyAudit -ne "2|$email1") { throw "Customer status audit is incorrect: $historyAudit" }
+    $historyAudit = (& sqlcmd -S $SqlServer -d $Database -E -C -I -h -1 -W -Q "SET NOCOUNT ON; SELECT CONCAT(COUNT(*), '|', MAX(CASE WHEN NewStatus = 'Cancelled' THEN ChangedByEmail END), '|', MAX(CASE WHEN NewStatus = 'Cancelled' THEN Reason END)) FROM OrderStatusHistories WHERE OrderId = $orderId;").Trim()
+    if ($LASTEXITCODE -ne 0 -or $historyAudit -ne "2|$email1|Toi dat nham san pham") { throw "Customer status audit is incorrect: $historyAudit" }
     Write-Output 'PASS: customer cancellation records status history'
 } finally {
     $cleanup = @"

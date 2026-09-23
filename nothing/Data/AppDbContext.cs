@@ -161,6 +161,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .IsRequired();
 
         modelBuilder.Entity<OrderStatusHistory>()
+            .Property(history => history.Reason)
+            .HasMaxLength(300);
+
+        modelBuilder.Entity<OrderStatusHistory>()
             .HasIndex(history => new { history.OrderId, history.ChangedAt });
     }
 }
