@@ -199,3 +199,7 @@ EF SQL Server có transient retry và các transaction thủ công chạy bên t
 ## Tiến độ bảo mật Auth — bài44
 
 `POST /api/auth/login` có fixed-window rate limit theo IP: tối đa 10 request/phút, request dư trả 429 ProblemDetails và Retry-After; React có thông báo riêng cho 429. Identity lockout theo tài khoản tiếp tục hoạt động độc lập. Limiter hiện lưu trong memory của một instance; khi chọn reverse proxy/nhiều instance phải cấu hình trusted forwarded headers và lớp rate limit phù hợp hạ tầng.
+
+## Tiến độ Production Auth — bài45
+
+Data Protection dùng application name `TvStore`. Development giữ key store mặc định; ngoài Development bắt buộc cấu hình `DataProtection__KeysPath` tới storage bền vững, nếu thiếu ứng dụng fail fast. Artifact Production đã được kiểm tra tạo key file và health check thành công. Khi chọn cloud còn phải cấu hình volume/shared store, quyền truy cập và mã hóa key at rest theo provider.

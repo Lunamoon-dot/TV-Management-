@@ -9,9 +9,23 @@ using nothing.Features.Orders;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.DataProtection;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var dataProtection = builder.Services.AddDataProtection()
+    .SetApplicationName("TvStore");
+var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"];
+if (!string.IsNullOrWhiteSpace(dataProtectionKeysPath))
+{
+    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+}
+else if (!builder.Environment.IsDevelopment())
+{
+    throw new InvalidOperationException(
+        "DataProtection:KeysPath must point to durable storage outside Development.");
+}
 
 // Add services to the container.
 
