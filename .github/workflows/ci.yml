@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Test frontend
+        working-directory: frontend
+        run: npm test
+
+      - name: Restore backend dependencies
+        run: dotnet restore nothing/nothing.csproj
+
+      - name: Build backend
+        run: dotnet build nothing/nothing.csproj --configuration Release --no-restore
+
+      - name: Create deploy artifact
+        run: dotnet publish nothing/nothing.csproj --configuration Release --no-build --no-restore --output artifacts/app
+
+      - name: Verify deploy artifact
+        shell: bash
+        run: |
+          test -f artifacts/app/nothing.dll
+          test -f artifacts/app/wwwroot/index.html

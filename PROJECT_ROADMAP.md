@@ -215,3 +215,7 @@ Luồng order có structured logs chọn lọc cho tạo/replay checkout, thiế
 ## Tiến độ hỗ trợ lỗi frontend — bài48
 
 React có helper đọc `X-Correlation-ID` từ Axios error và checkout hiện mã hỗ trợ cho lỗi API không dự đoán được. Validation/401 vẫn có UX riêng, lỗi mạng không có response không tạo mã giả. Backend log và UI giờ có thể nối bằng cùng correlation ID; chưa có trang lỗi dùng chung hoặc log aggregation để tra cứu mã trên staging.
+
+## Tiến độ CI — bài49
+
+GitHub Actions chạy trên push main và pull request: Node 22 npm ci/lint/51 tests, .NET 10 restore/Release build, publish artifact same-origin và kiểm tra backend DLL + React index. Workflow có read-only contents permission, concurrency cancellation và timeout. Integration test SQL/PowerShell, E2E, artifact upload và CD chưa nằm trong workflow đầu tiên.
