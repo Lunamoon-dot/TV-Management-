@@ -223,3 +223,7 @@ GitHub Actions chạy trên push main và pull request: Node 22 npm ci/lint/51 t
 ## Tiến độ backend tests — bài50
 
 Thêm xUnit project vào solution và tách `OrderStatusPolicy` cho transition cùng quyền hủy Customer/Admin. 12 unit tests chạy trong CI trước publish; regression integration Admin Orders vẫn đạt với HTTP/Identity/EF/SQL thật. SQL integration tests vẫn chạy local, chưa dựng database service trong GitHub Actions.
+
+## Tiến độ Container — bài51
+
+Thêm multi-stage Dockerfile: Node22 build React, .NET10 SDK publish backend, ASP.NET10 runtime chạy non-root trên cổng 8080; image cuối chứa React trong wwwroot. `.dockerignore` giảm build context và CI chạy docker build. Runtime vẫn cần connection string, DataProtection key volume và database ngoài container; chưa push registry/deploy. Máy local chưa cài Docker nên validation image giao cho GitHub runner.

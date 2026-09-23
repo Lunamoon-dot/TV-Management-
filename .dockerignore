@@ -1,0 +1,12 @@
+.git
+.github
+.vs
+.codex-check
+**/bin
+**/obj
+**/node_modules
+**/dist
+tests
+lessons
+*.user
+*.log

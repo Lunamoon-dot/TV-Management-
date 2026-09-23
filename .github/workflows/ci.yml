@@ -62,3 +62,6 @@ jobs:
         run: |
           test -f artifacts/app/nothing.dll
           test -f artifacts/app/wwwroot/index.html
+
+      - name: Build Docker image
+        run: docker build --tag tv-store:ci .
