@@ -8,10 +8,11 @@ export interface ProductResponse {
   brand: string
   price: number
   stock: number
+  rowVersion: string
 }
 
 export type { CreateProductRequest } from './schemas/create-product'
-export type UpdateProductRequest = import('./schemas/create-product').CreateProductRequest
+export type UpdateProductRequest = import('./schemas/create-product').CreateProductRequest & { rowVersion: string }
 
 export interface ProductPageResponse {
   items: ProductResponse[]

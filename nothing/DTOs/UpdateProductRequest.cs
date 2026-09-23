@@ -29,4 +29,7 @@ public class UpdateProductRequest
 
     [Range(0, int.MaxValue)]
     public int Stock { get; set; }
+
+    [Required]
+    public string RowVersion { get; set; } = string.Empty;
 }

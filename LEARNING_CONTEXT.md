@@ -98,6 +98,10 @@ Thêm `OrderNote` cho ghi chú vận hành nội bộ, tách khỏi status histo
 
 Danh sách Admin lọc được theo một phần email Customer, OrderStatus và PaymentStatus; các điều kiện kết hợp AND trước Count/OrderBy/Skip/Take/Select. React tách draft email khỏi filters đã áp dụng, select áp dụng ngay và đổi filter reset page 1. Enum query sai trả 400; không khớp trả 200 rỗng. Không đổi schema/migration. Xem `lessons/40-admin-order-filters.md`.
 
+## Tiến độ Product Concurrency — bài 41
+
+Product có SQL Server rowversion; response serialize byte[] thành Base64 và form edit gửi token GET cũ trong PUT. EF dùng token làm original value, stale update ném DbUpdateConcurrencyException và API trả 409; React yêu cầu reload thay vì ghi đè. Stock đổi do checkout/cancel cũng đổi token. Migration `20260923122459_AddProductRowVersion` đã apply. Test hai update cùng token xác nhận update đầu giữ nguyên, update sau 409; catalog/order regression đạt. Xem `lessons/41-product-optimistic-concurrency.md`.
+
 ## Bối cảnh project đã kiểm tra
 
 - Solution: `nothing.slnx`.

@@ -13,6 +13,7 @@ public class ProductResponse
     public string Brand { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public int Stock { get; set; }
+    public byte[] RowVersion { get; set; } = [];
 
     public static ProductResponse FromProduct(Product product)
     {
@@ -26,7 +27,8 @@ public class ProductResponse
             BrandId = product.BrandId,
             Brand = product.Brand.Name,
             Price = product.Price,
-            Stock = product.Stock
+            Stock = product.Stock,
+            RowVersion = product.RowVersion
         };
     }
 }

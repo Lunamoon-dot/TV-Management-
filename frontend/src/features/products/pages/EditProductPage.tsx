@@ -62,7 +62,7 @@ function EditProduct({ id }: { id: number }) {
     submitLabel="Lưu thay đổi"
     failureMessage="Chưa xác nhận được kết quả cập nhật. Hãy kiểm tra trang chi tiết trước khi gửi lại."
     onSubmit={async request => {
-      await updateProduct(id, request)
+      await updateProduct(id, { ...request, rowVersion: product.rowVersion })
       navigate('/admin/products', { replace: true })
     }}
   />

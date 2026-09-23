@@ -3,6 +3,7 @@ import { getCartCount, getCartTotal, useCartStore } from './cart-store'
 import type { ProductResponse } from '../../products/types'
 
 const product: ProductResponse = {
+  rowVersion: 'AAAAAAAAAAA=',
   id: 1,
   name: 'Samsung 4K 55 inch',
   imageUrl: 'https://example.test/tv.jpg',

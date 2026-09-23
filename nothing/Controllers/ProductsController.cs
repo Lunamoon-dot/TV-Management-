@@ -46,7 +46,8 @@ namespace nothing.Controllers
                     BrandId = product.BrandId,
                     Brand = product.Brand.Name,
                     Price = product.Price,
-                    Stock = product.Stock
+                    Stock = product.Stock,
+                    RowVersion = product.RowVersion
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -80,6 +81,19 @@ namespace nothing.Controllers
                 return ValidationProblem(ModelState);
             }
 
+            byte[] rowVersion;
+            try
+            {
+                rowVersion = Convert.FromBase64String(request.RowVersion);
+            }
+            catch (FormatException)
+            {
+                ModelState.AddModelError(nameof(request.RowVersion), "Row version is invalid.");
+                return ValidationProblem(ModelState);
+            }
+
+            _context.Entry(product).Property(item => item.RowVersion).OriginalValue = rowVersion;
+
             product.Name = request.Name.Trim();
             product.ImageUrl = request.ImageUrl.Trim();
             product.ScreenSizeInches = request.ScreenSizeInches;
@@ -88,7 +102,18 @@ namespace nothing.Controllers
             product.Price = request.Price;
             product.Stock = request.Stock;
 
-            await _context.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Conflict(new ProblemDetails
+                {
+                    Title = "The product was changed by another request.",
+                    Detail = "Reload the product before saving your changes."
+                });
+            }
 
             return NoContent();
         }

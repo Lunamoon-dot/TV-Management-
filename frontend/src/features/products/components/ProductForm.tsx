@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { getBrands, type BrandResponse } from '../api/brands'
 import { readProductValidation, type ProductFieldErrors } from '../api/product-validation'
 import { createProductSchema, type CreateProductForm, type CreateProductRequest } from '../schemas/create-product'
-import { getHttpResponseData, isAuthenticationError, isAuthorizationError, isNotFoundError, isValidationError } from '../../../shared/api/errors'
+import { getHttpResponseData, isAuthenticationError, isAuthorizationError, isConflictError, isNotFoundError, isValidationError } from '../../../shared/api/errors'
 import { useAuthStore } from '../../auth/stores/auth-store'
 
 const inputClass = 'mt-2 w-full rounded-md border border-[#cbd3cd] bg-white px-4 py-2 focus-visible:outline-2 focus-visible:outline-[#254c40]'
@@ -67,6 +67,8 @@ export function ProductForm({ initialValues, submitLabel, failureMessage, onSubm
         setMessage('Sản phẩm không còn tồn tại. Hãy quay lại danh sách.')
       } else if (isAuthorizationError(error)) {
         setMessage('Tài khoản không có quyền quản lý TV.')
+      } else if (isConflictError(error)) {
+        setMessage('TV đã được thay đổi ở nơi khác. Hãy tải lại trang trước khi sửa tiếp.')
       } else {
         setMessage(failureMessage)
       }

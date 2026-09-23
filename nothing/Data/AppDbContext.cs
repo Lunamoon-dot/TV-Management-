@@ -58,6 +58,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .Property(product => product.Resolution)
             .HasMaxLength(50);
 
+        modelBuilder.Entity<Product>()
+            .Property(product => product.RowVersion)
+            .IsRowVersion();
+
         modelBuilder.Entity<Order>()
             .HasOne(order => order.Customer)
             .WithMany()

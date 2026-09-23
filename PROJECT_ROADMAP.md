@@ -183,3 +183,7 @@ Admin có thể thêm và đọc ghi chú nội bộ trên chi tiết đơn; m�
 ## Tiến độ Admin Orders — bài40
 
 Admin lọc danh sách theo email Customer, trạng thái đơn và trạng thái thanh toán, kết hợp với phân trang và tổng số sau lọc. React giữ riêng email đang gõ và filter đã áp dụng để tránh request theo từng phím. Chưa có lọc khoảng ngày hoặc sort tùy chọn.
+
+## Tiến độ Product Concurrency — bài41
+
+Product dùng SQL Server rowversion để phát hiện lost update. React gửi token từ lần GET; stale PUT trả 409 và không ghi đè dữ liệu mới, kể cả khi Stock vừa đổi do checkout. Migration đã áp dụng và regression catalog/order đạt. Delete chưa nhận token từ client; nếu cần UX xung đột khi xóa sẽ mở rộng riêng.

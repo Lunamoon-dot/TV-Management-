@@ -46,7 +46,8 @@ public class ProductService
                 BrandId = product.BrandId,
                 Brand = product.Brand.Name,
                 Price = product.Price,
-                Stock = product.Stock
+                Stock = product.Stock,
+                RowVersion = product.RowVersion
             })
             .ToListAsync(cancellationToken);
 

@@ -2,6 +2,8 @@
 @productId = 1
 @deleteProductId = 5
 @brandId = 2
+# Copy rowVersion from GET /api/products/{{productId}} before sending PUT.
+@productRowVersion = COPY_BASE64_ROW_VERSION_HERE
 
 # Pagination: list responses now contain items, totalCount, page and pageSize
 GET {{nothing_HostAddress}}/api/products?page=1&pageSize=2
@@ -117,7 +119,8 @@ Content-Type: application/json
   "resolution": "4K UHD",
   "brandId": {{brandId}},
   "price": 11990000,
-  "stock": 12
+  "stock": 12,
+  "rowVersion": "{{productRowVersion}}"
 }
 
 ###
@@ -133,7 +136,8 @@ Content-Type: application/json
   "resolution": "",
   "brandId": {{brandId}},
   "price": 0,
-  "stock": -1
+  "stock": -1,
+  "rowVersion": "{{productRowVersion}}"
 }
 
 ###
@@ -149,7 +153,8 @@ Content-Type: application/json
   "resolution": "4K UHD",
   "brandId": {{brandId}},
   "price": 11990000,
-  "stock": 12
+  "stock": 12,
+  "rowVersion": "{{productRowVersion}}"
 }
 
 ###

@@ -23,3 +23,7 @@ export function isAuthorizationError(error: unknown): boolean {
 export function isNotFoundError(error: unknown): boolean {
   return getHttpStatus(error) === 404
 }
+
+export function isConflictError(error: unknown): boolean {
+  return getHttpStatus(error) === 409
+}
