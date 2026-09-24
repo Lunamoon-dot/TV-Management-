@@ -22,7 +22,10 @@ public sealed class DevelopmentPasswordResetEmailSender : IPasswordResetEmailSen
     {
         Directory.CreateDirectory(_pickupDirectory);
         var message = new DevelopmentPasswordResetMessage(
-            email, resetCode, DateTimeOffset.UtcNow);
+            email,
+            resetCode,
+            $"/reset-password?email={Uri.EscapeDataString(email)}&code={Uri.EscapeDataString(resetCode)}",
+            DateTimeOffset.UtcNow);
         var path = Path.Combine(_pickupDirectory, $"password-reset-{Guid.NewGuid():N}.json");
         await File.WriteAllTextAsync(
             path,
@@ -33,6 +36,6 @@ public sealed class DevelopmentPasswordResetEmailSender : IPasswordResetEmailSen
     private sealed record DevelopmentPasswordResetMessage(
         string Email,
         string ResetCode,
+        string ResetPath,
         DateTimeOffset CreatedAt);
 }
-

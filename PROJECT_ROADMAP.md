@@ -251,3 +251,7 @@ Trang `/account/profile` có form đổi mật khẩu với ba ô và toggle hi�
 ## Tiến độ Password Recovery — bài57
 
 Thêm POST `/api/auth/forgot-password` và `/api/auth/reset-password`, CSRF + rate limit 5/15 phút/IP. Forgot luôn 204 để không lộ email; Identity token provider tạo/kiểm tra reset token được Base64Url encode. Development dùng pickup file `.dev-emails` gitignored để test; production email provider chưa chọn và bắt buộc hoàn thiện trước deploy. Integration SQL thật đạt toàn bộ luồng cũ/mới. Frontend recovery chưa làm, là bài kế tiếp.
+
+## Tiến độ Password Recovery — bài58
+
+React có `/forgot-password`, link từ login và `/reset-password` đọc email/code từ URL. Zod kiểm tra email/password/confirmation, Axios gửi CSRF; forgot luôn hiện thông báo chung. Reset token được đưa vào state rồi xóa khỏi URL bằng replaceState. Development message có ResetPath local; production vẫn cần email provider + public origin. Frontend đạt 60 test, lint/build và browser states đạt.

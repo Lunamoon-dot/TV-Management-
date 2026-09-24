@@ -102,6 +102,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
           </div>
           <p id="password-help" className="mt-2 text-sm text-[#52645e]">{isRegister ? '8–128 ký tự, gồm ít nhất một chữ thường và một chữ số.' : 'Nhập mật khẩu của tài khoản đã đăng ký.'}</p>
           <p id="password-errors" className="mt-2 text-sm text-red-800">{errors.password?.join(' ')}</p>
+          {!isRegister && <p className="mt-3 text-sm"><Link to="/forgot-password" className="underline">Quên mật khẩu?</Link></p>}
         </div>
         {isRegister && <div>
           <label htmlFor="auth-confirm-password" className="font-medium">Nhập lại mật khẩu</label>

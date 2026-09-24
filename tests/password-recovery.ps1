@@ -43,7 +43,7 @@ try {
     $messageFile = Get-ChildItem -LiteralPath $PickupDirectory -Filter 'password-reset-*.json' | Select-Object -First 1
     if ($null -eq $messageFile) { throw 'Development reset message was not created.' }
     $message = Get-Content -LiteralPath $messageFile.FullName -Raw | ConvertFrom-Json
-    if ($message.Email -ne $email -or [string]::IsNullOrWhiteSpace($message.ResetCode)) {
+    if ($message.Email -ne $email -or [string]::IsNullOrWhiteSpace($message.ResetCode) -or $message.ResetPath -notlike '/reset-password?*') {
         throw 'Development reset message is invalid.'
     }
     Write-Output 'PASS: development delivery contains the reset code'

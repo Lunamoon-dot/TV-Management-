@@ -18,6 +18,8 @@ import { OrderHistoryPage } from '../features/orders/pages/OrderHistoryPage'
 import { AdminOrdersPage } from '../features/admin/pages/AdminOrdersPage'
 import { AdminOrderDetailsPage } from '../features/admin/pages/AdminOrderDetailsPage'
 import { ProfilePage } from '../features/account/pages/ProfilePage'
+import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage'
+import { ResetPasswordPage } from '../features/auth/pages/ResetPasswordPage'
 
 export default function App() {
   const refresh = useAuthStore(state => state.refresh)
@@ -32,6 +34,8 @@ export default function App() {
       <Route element={<CustomerLayout />}>
         <Route path="/login" element={<AuthPage key="login" mode="login" />} />
         <Route path="/register" element={<AuthPage key="register" mode="register" />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/" element={<ProductsPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/orders" element={<RequireAuthenticated><OrderHistoryPage /></RequireAuthenticated>} />
