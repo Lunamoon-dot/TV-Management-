@@ -227,3 +227,7 @@ Thêm xUnit project vào solution và tách `OrderStatusPolicy` cho transition c
 ## Tiến độ Container — bài51
 
 Thêm multi-stage Dockerfile: Node22 build React, .NET10 SDK publish backend, ASP.NET10 runtime chạy non-root trên cổng 8080; image cuối chứa React trong wwwroot. `.dockerignore` giảm build context và CI chạy docker build. Runtime vẫn cần connection string, DataProtection key volume và database ngoài container; chưa push registry/deploy. Máy local chưa cài Docker nên validation image giao cho GitHub runner.
+
+## Tiến độ Customer Profile — bài52
+
+ApplicationUser có FullName, PhoneNumber và ShippingAddress nullable cho account cũ. GET/PUT `/api/account/profile` lấy user từ cookie, PUT dùng CSRF + DTO validation và UserManager; không nhận userId nên dữ liệu cách ly theo tài khoản. Migration đã apply SQL local và integration test hai user đạt. Frontend profile/prefill checkout chưa làm, là bài kế tiếp.

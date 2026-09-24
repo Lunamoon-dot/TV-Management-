@@ -27,6 +27,18 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<ApplicationUser>()
+            .Property(user => user.FullName)
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<ApplicationUser>()
+            .Property(user => user.PhoneNumber)
+            .HasMaxLength(20);
+
+        modelBuilder.Entity<ApplicationUser>()
+            .Property(user => user.ShippingAddress)
+            .HasMaxLength(300);
+
         modelBuilder.Entity<Brand>()
             .Property(brand => brand.Name)
             .HasMaxLength(100)
