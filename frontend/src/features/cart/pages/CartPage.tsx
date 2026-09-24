@@ -1,10 +1,12 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { useAuthStore } from '../../auth/stores/auth-store'
 import { createOrder } from '../../orders/api/orders'
 import { checkoutSchema, type CheckoutFormInput } from '../../orders/schemas/checkout'
 import { isAuthenticationError, isValidationError, withSupportCode } from '../../../shared/api/errors'
 import { getCartTotal, useCartStore } from '../stores/cart-store'
+import { getProfile } from '../../account/api/profile'
+import { prefillCheckout } from '../../orders/checkout-prefill'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
 
@@ -29,8 +31,31 @@ export function CartPage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [checkoutDetails, setCheckoutDetails] = useState(emptyCheckout)
+  const [profileMessage, setProfileMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof CheckoutFormInput, string>>>({})
   const total = getCartTotal(items)
+
+  useEffect(() => {
+    if (session.status !== 'authenticated') return
+
+    const controller = new AbortController()
+    getProfile(controller.signal)
+      .then(profile => {
+        setCheckoutDetails(current => prefillCheckout(current, profile))
+        if (profile.fullName || profile.phoneNumber || profile.shippingAddress) {
+          setProfileMessage('Đã điền thông tin từ hồ sơ. Bạn có thể sửa cho đơn hàng này.')
+        } else {
+          setProfileMessage('Hồ sơ chưa có thông tin giao hàng. Bạn có thể nhập tại đây hoặc cập nhật hồ sơ.')
+        }
+      })
+      .catch(requestError => {
+        if (controller.signal.aborted) return
+        if (isAuthenticationError(requestError)) markAnonymous()
+        else setProfileMessage('Không tải được thông tin hồ sơ. Bạn vẫn có thể nhập thủ công.')
+      })
+
+    return () => controller.abort()
+  }, [markAnonymous, session.status])
 
   async function checkout(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -118,6 +143,9 @@ export function CartPage() {
           <h2 className="text-xl font-semibold">Tổng đơn tạm tính</h2>
           <p className="mt-5 text-3xl font-bold">{money.format(total)}</p>
           <p className="mt-4 text-sm text-[#52645e]">Giá và tồn kho sẽ được backend kiểm tra lại trước khi tạo đơn.</p>
+          {session.status === 'authenticated' && profileMessage && <p role="status" className="mt-4 text-sm text-[#52645e]">
+            {profileMessage} <Link to="/account/profile" className="underline">Mở hồ sơ</Link>
+          </p>}
 
           <label className="mt-6 block text-sm font-semibold" htmlFor="recipientName">Tên người nhận</label>
           <input id="recipientName" value={checkoutDetails.recipientName}

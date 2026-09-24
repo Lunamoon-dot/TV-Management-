@@ -235,3 +235,7 @@ ApplicationUser có FullName, PhoneNumber và ShippingAddress nullable cho accou
 ## Tiến độ Customer Profile — bài53
 
 React có route bảo vệ `/account/profile`, form tải/lưu bằng Axios, lấy CSRF cho PUT và kiểm tra bằng Zod trước khi gửi. Email trên navbar dẫn tới hồ sơ; email trong form chỉ đọc. State form dùng `useState` vì chỉ thuộc một trang, không đưa vào Zustand khi chưa có nhu cầu chia sẻ. Frontend đạt 53 test, lint và production build; chưa dùng hồ sơ để điền sẵn checkout.
+
+## Tiến độ Checkout — bài54
+
+CartPage tải Customer Profile khi session đã authenticated và điền FullName/PhoneNumber/ShippingAddress vào các ô checkout còn trống. Response đến chậm không ghi đè dữ liệu người mua đã nhập; lỗi profile không chặn checkout thủ công. Giá trị sửa ở checkout chỉ thành snapshot của Order, không tự sửa hồ sơ. Frontend đạt 55 test, lint và production build.
