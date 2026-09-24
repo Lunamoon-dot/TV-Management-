@@ -5,6 +5,7 @@ import { profileSchema, type ProfileForm } from '../schemas/profile'
 import { isAuthenticationError, isValidationError, withSupportCode } from '../../../shared/api/errors'
 import { useAuthStore } from '../../auth/stores/auth-store'
 import { useNavigate } from 'react-router'
+import { ChangePasswordForm } from '../components/ChangePasswordForm'
 
 type FieldErrors = Partial<Record<keyof ProfileForm, string[]>>
 const emptyForm: ProfileForm = { fullName: '', phoneNumber: '', shippingAddress: '' }
@@ -129,5 +130,6 @@ export function ProfilePage() {
       </fieldset>
       {message && <p role="status" className={`mt-5 ${message === 'Đã lưu hồ sơ.' ? 'text-[#254c40]' : 'text-red-800'}`}>{message}</p>}
     </form>
+    <ChangePasswordForm />
   </main>
 }
