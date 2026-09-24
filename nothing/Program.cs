@@ -6,6 +6,7 @@ using nothing.ExceptionHandlers;
 using nothing.Infrastructure;
 using nothing.Services;
 using nothing.Features.Orders;
+using nothing.Features.Auth;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderCancellationService>();
+if (builder.Environment.IsDevelopment())
+    builder.Services.AddSingleton<IPasswordResetEmailSender, DevelopmentPasswordResetEmailSender>();
+else
+    builder.Services.AddSingleton<IPasswordResetEmailSender, UnavailablePasswordResetEmailSender>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddHostedService<DevelopmentAdminSeeder>();
@@ -51,6 +56,15 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(1),
                 QueueLimit = 0
             }));
+    options.AddPolicy("password-reset", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(15),
+                QueueLimit = 0
+            }));
     options.OnRejected = async (context, cancellationToken) =>
     {
         if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
@@ -62,7 +76,7 @@ builder.Services.AddRateLimiter(options =>
         await context.HttpContext.Response.WriteAsJsonAsync(new ProblemDetails
         {
             Status = StatusCodes.Status429TooManyRequests,
-            Title = "Bạn đã thử đăng nhập quá nhiều lần. Vui lòng thử lại sau."
+            Title = "Bạn đã gửi quá nhiều yêu cầu. Vui lòng thử lại sau."
         }, cancellationToken);
     };
 });
@@ -87,6 +101,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     })
     .AddRoles<IdentityRole>()
     .AddSignInManager()
+    .AddDefaultTokenProviders()
     .AddEntityFrameworkStores<AppDbContext>();
 
 builder.Services.AddAuthentication(options =>

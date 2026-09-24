@@ -247,3 +247,7 @@ Thêm PUT `/api/account/password` cho user đã đăng nhập, bảo vệ bằng
 ## Tiến độ Account Security — bài56
 
 Trang `/account/profile` có form đổi mật khẩu với ba ô và toggle hiện/ẩn độc lập. Zod kiểm tra policy và hai lần nhập khớp, sau đó chỉ gửi currentPassword/newPassword qua Axios cùng CSRF; lỗi Identity được ánh xạ về field. Thành công xóa dữ liệu nhạy cảm khỏi state. Frontend đạt 57 test, lint và production build.
+
+## Tiến độ Password Recovery — bài57
+
+Thêm POST `/api/auth/forgot-password` và `/api/auth/reset-password`, CSRF + rate limit 5/15 phút/IP. Forgot luôn 204 để không lộ email; Identity token provider tạo/kiểm tra reset token được Base64Url encode. Development dùng pickup file `.dev-emails` gitignored để test; production email provider chưa chọn và bắt buộc hoàn thiện trước deploy. Integration SQL thật đạt toàn bộ luồng cũ/mới. Frontend recovery chưa làm, là bài kế tiếp.
