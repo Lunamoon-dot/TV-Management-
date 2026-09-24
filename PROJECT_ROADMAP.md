@@ -239,3 +239,7 @@ React có route bảo vệ `/account/profile`, form tải/lưu bằng Axios, l�
 ## Tiến độ Checkout — bài54
 
 CartPage tải Customer Profile khi session đã authenticated và điền FullName/PhoneNumber/ShippingAddress vào các ô checkout còn trống. Response đến chậm không ghi đè dữ liệu người mua đã nhập; lỗi profile không chặn checkout thủ công. Giá trị sửa ở checkout chỉ thành snapshot của Order, không tự sửa hồ sơ. Frontend đạt 55 test, lint và production build.
+
+## Tiến độ Account Security — bài55
+
+Thêm PUT `/api/account/password` cho user đã đăng nhập, bảo vệ bằng CSRF. UserManager kiểm tra mật khẩu hiện tại, áp dụng password policy và thay hash/security stamp; RefreshSignInAsync phát hành lại cookie cho phiên hiện tại. Integration test SQL thật xác nhận mật khẩu cũ hết hiệu lực, mật khẩu mới đăng nhập được và cookie hiện tại còn hợp lệ. Frontend đổi mật khẩu chưa làm, là bài kế tiếp.
