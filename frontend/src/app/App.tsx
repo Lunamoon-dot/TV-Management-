@@ -17,6 +17,7 @@ import { RequireAuthenticated } from '../features/auth/components/RequireAuthent
 import { OrderHistoryPage } from '../features/orders/pages/OrderHistoryPage'
 import { AdminOrdersPage } from '../features/admin/pages/AdminOrdersPage'
 import { AdminOrderDetailsPage } from '../features/admin/pages/AdminOrderDetailsPage'
+import { ProfilePage } from '../features/account/pages/ProfilePage'
 
 export default function App() {
   const refresh = useAuthStore(state => state.refresh)
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/orders" element={<RequireAuthenticated><OrderHistoryPage /></RequireAuthenticated>} />
         <Route path="/orders/:id" element={<RequireAuthenticated><OrderConfirmationPage /></RequireAuthenticated>} />
+        <Route path="/account/profile" element={<RequireAuthenticated><ProfilePage /></RequireAuthenticated>} />
         <Route path="/products/:id" element={<ProductDetailsPage />} />
         <Route path="*" element={<main className="mx-auto max-w-6xl px-6 py-16">
           <h1 className="mb-5 text-3xl font-bold">Trang không tồn tại</h1>

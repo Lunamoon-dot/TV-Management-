@@ -231,3 +231,7 @@ Thêm multi-stage Dockerfile: Node22 build React, .NET10 SDK publish backend, AS
 ## Tiến độ Customer Profile — bài52
 
 ApplicationUser có FullName, PhoneNumber và ShippingAddress nullable cho account cũ. GET/PUT `/api/account/profile` lấy user từ cookie, PUT dùng CSRF + DTO validation và UserManager; không nhận userId nên dữ liệu cách ly theo tài khoản. Migration đã apply SQL local và integration test hai user đạt. Frontend profile/prefill checkout chưa làm, là bài kế tiếp.
+
+## Tiến độ Customer Profile — bài53
+
+React có route bảo vệ `/account/profile`, form tải/lưu bằng Axios, lấy CSRF cho PUT và kiểm tra bằng Zod trước khi gửi. Email trên navbar dẫn tới hồ sơ; email trong form chỉ đọc. State form dùng `useState` vì chỉ thuộc một trang, không đưa vào Zustand khi chưa có nhu cầu chia sẻ. Frontend đạt 53 test, lint và production build; chưa dùng hồ sơ để điền sẵn checkout.

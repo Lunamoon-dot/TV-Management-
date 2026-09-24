@@ -26,7 +26,7 @@ export function AccountNav() {
       {session.status === 'authenticated' && <>
         <Link to="/orders" className="underline">Đơn hàng</Link>
         {isAdmin(session.user) && <Link to="/admin" className="underline">Khu quản trị</Link>}
-        <span className="break-all">{session.user.email}</span>
+        <Link to="/account/profile" className="break-all underline">{session.user.email}</Link>
         <button type="button" disabled={busy} className="cursor-pointer underline disabled:opacity-50" onClick={async () => {
           if (busy) return
           setBusy(true)
