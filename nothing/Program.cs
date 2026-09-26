@@ -43,8 +43,18 @@ if (builder.Environment.IsDevelopment())
 }
 else
 {
-    builder.Services.AddSingleton<IPasswordResetEmailSender, UnavailablePasswordResetEmailSender>();
-    builder.Services.AddSingleton<IEmailConfirmationSender, UnavailableEmailConfirmationSender>();
+    var smtpConfigured = !string.IsNullOrWhiteSpace(builder.Configuration["Smtp:Host"]);
+    if (smtpConfigured)
+    {
+        builder.Services.AddSingleton<SmtpEmailSender>();
+        builder.Services.AddSingleton<IPasswordResetEmailSender>(services => services.GetRequiredService<SmtpEmailSender>());
+        builder.Services.AddSingleton<IEmailConfirmationSender>(services => services.GetRequiredService<SmtpEmailSender>());
+    }
+    else
+    {
+        builder.Services.AddSingleton<IPasswordResetEmailSender, UnavailablePasswordResetEmailSender>();
+        builder.Services.AddSingleton<IEmailConfirmationSender, UnavailableEmailConfirmationSender>();
+    }
 }
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

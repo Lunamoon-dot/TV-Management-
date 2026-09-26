@@ -267,3 +267,7 @@ React có `/confirm-email`: đăng ký chuyển tới trang này, không có cod
 ## Tiến độ Email Confirmation — bài61
 
 Login hỗ trợ rollout `Auth:RequireConfirmedEmail`: mặc định false để không khóa tài khoản cũ, khi bật thì Identity từ chối account chưa xác nhận và API trả 403 để React hướng dẫn gửi lại email. Khi triển khai production cần xác nhận dữ liệu cũ hoặc có kế hoạch hỗ trợ trước khi bật cờ.
+
+## Tiến độ Email Provider — bài62
+
+Production có `SmtpEmailSender` dùng chung cho xác nhận email và reset mật khẩu; cấu hình qua `PublicOrigin` và `Smtp__*` environment variables, còn Development giữ pickup file. Chưa chọn nhà cung cấp SMTP cụ thể hoặc hoàn thiện SPF/DKIM/DMARC và monitoring gửi mail.
