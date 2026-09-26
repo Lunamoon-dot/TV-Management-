@@ -43,7 +43,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
     try {
       if (isRegister) {
         await register(parsed.data)
-        navigate('/login', { replace: true, state: { registered: true } })
+        navigate(`/confirm-email?email=${encodeURIComponent(parsed.data.email)}`, { replace: true })
       } else {
         await signIn(parsed.data)
         navigate(getReturnPath(location), { replace: true })

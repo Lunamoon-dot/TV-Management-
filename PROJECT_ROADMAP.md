@@ -259,3 +259,7 @@ React có `/forgot-password`, link từ login và `/reset-password` đọc email
 ## Tiến độ Email Confirmation — bài59
 
 Đăng ký tự tạo email confirmation token; resend và confirm endpoints có CSRF + rate limit 5/15 phút/IP, resend dùng generic 204 chống enumeration. EmailConfirmationService dùng chung cho register/resend; Development pickup tạo ConfirmationPath. Integration SQL xác nhận false→true. Chưa bật RequireConfirmedEmail để tránh khóa account cũ; frontend confirmation và rollout enforcement làm tiếp.
+
+## Tiến độ Email Confirmation — bài60
+
+React có `/confirm-email`: đăng ký chuyển tới trang này, không có code thì gửi lại email, có code thì tự xác nhận. Query token được đưa vào state rồi xóa khỏi URL; thông báo resend vẫn generic. Frontend đạt 62 test, lint/build; login chưa yêu cầu EmailConfirmed.
