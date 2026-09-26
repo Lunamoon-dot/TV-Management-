@@ -35,10 +35,17 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderCancellationService>();
+builder.Services.AddScoped<EmailConfirmationService>();
 if (builder.Environment.IsDevelopment())
+{
     builder.Services.AddSingleton<IPasswordResetEmailSender, DevelopmentPasswordResetEmailSender>();
+    builder.Services.AddSingleton<IEmailConfirmationSender, DevelopmentEmailConfirmationSender>();
+}
 else
+{
     builder.Services.AddSingleton<IPasswordResetEmailSender, UnavailablePasswordResetEmailSender>();
+    builder.Services.AddSingleton<IEmailConfirmationSender, UnavailableEmailConfirmationSender>();
+}
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddHostedService<DevelopmentAdminSeeder>();
@@ -57,6 +64,15 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 0
             }));
     options.AddPolicy("password-reset", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(15),
+                QueueLimit = 0
+            }));
+    options.AddPolicy("account-email", httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             factory: _ => new FixedWindowRateLimiterOptions

@@ -24,6 +24,7 @@ function Csrf($webSession) {
 try {
     New-Item -ItemType Directory -Force -Path $PickupDirectory | Out-Null
     Get-ChildItem -LiteralPath $PickupDirectory -Filter 'password-reset-*.json' | Remove-Item -Force
+    Get-ChildItem -LiteralPath $PickupDirectory -Filter 'email-confirmation-*.json' | Remove-Item -Force
 
     $csrf = Csrf $session
     $registerBody = @{ email=$email; password=$oldPassword } | ConvertTo-Json
@@ -68,5 +69,6 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Password recovery test cleanup failed.' }
     if (Test-Path -LiteralPath $PickupDirectory) {
         Get-ChildItem -LiteralPath $PickupDirectory -Filter 'password-reset-*.json' | Remove-Item -Force
+        Get-ChildItem -LiteralPath $PickupDirectory -Filter 'email-confirmation-*.json' | Remove-Item -Force
     }
 }

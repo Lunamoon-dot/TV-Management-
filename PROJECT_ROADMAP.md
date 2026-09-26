@@ -255,3 +255,7 @@ Thêm POST `/api/auth/forgot-password` và `/api/auth/reset-password`, CSRF + ra
 ## Tiến độ Password Recovery — bài58
 
 React có `/forgot-password`, link từ login và `/reset-password` đọc email/code từ URL. Zod kiểm tra email/password/confirmation, Axios gửi CSRF; forgot luôn hiện thông báo chung. Reset token được đưa vào state rồi xóa khỏi URL bằng replaceState. Development message có ResetPath local; production vẫn cần email provider + public origin. Frontend đạt 60 test, lint/build và browser states đạt.
+
+## Tiến độ Email Confirmation — bài59
+
+Đăng ký tự tạo email confirmation token; resend và confirm endpoints có CSRF + rate limit 5/15 phút/IP, resend dùng generic 204 chống enumeration. EmailConfirmationService dùng chung cho register/resend; Development pickup tạo ConfirmationPath. Integration SQL xác nhận false→true. Chưa bật RequireConfirmedEmail để tránh khóa account cũ; frontend confirmation và rollout enforcement làm tiếp.

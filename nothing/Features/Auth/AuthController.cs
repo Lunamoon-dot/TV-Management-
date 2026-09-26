@@ -13,11 +13,16 @@ public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly EmailConfirmationService _emailConfirmationService;
 
-    public AuthController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+    public AuthController(
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
+        EmailConfirmationService emailConfirmationService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _emailConfirmationService = emailConfirmationService;
     }
 
     [AllowAnonymous]
@@ -32,7 +37,9 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost("register")]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult<RegisterResponse>> Register(RegisterRequest request)
+    public async Task<ActionResult<RegisterResponse>> Register(
+        RegisterRequest request,
+        CancellationToken cancellationToken)
     {
         var email = request.Email.Trim();
         var user = new ApplicationUser
@@ -54,6 +61,8 @@ public class AuthController : ControllerBase
 
             return ValidationProblem(ModelState);
         }
+
+        await _emailConfirmationService.SendAsync(user, cancellationToken);
 
         return StatusCode(StatusCodes.Status201Created, new RegisterResponse
         {
