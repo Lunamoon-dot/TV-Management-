@@ -109,6 +109,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
     {
         options.User.RequireUniqueEmail = true;
+        options.SignIn.RequireConfirmedEmail =
+            builder.Configuration.GetValue<bool>("Auth:RequireConfirmedEmail");
         options.Password.RequiredLength = 8;
         options.Password.RequireLowercase = true;
         options.Password.RequireDigit = true;

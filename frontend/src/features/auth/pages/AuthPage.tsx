@@ -62,6 +62,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
         setMessage('Yêu cầu chưa hợp lệ. Kiểm tra dữ liệu hoặc thử gửi lại để lấy mã CSRF mới.')
       } else if (axios.isAxiosError(error) && error.response?.status === 401) {
         setMessage('Không thể đăng nhập với thông tin đã cung cấp.')
+      } else if (axios.isAxiosError(error) && error.response?.status === 403) {
+        setMessage('Email chưa được xác nhận. Hãy gửi lại email xác nhận rồi thử đăng nhập.')
       } else if (axios.isAxiosError(error) && error.response?.status === 429) {
         setMessage('Bạn đã thử đăng nhập quá nhiều lần. Vui lòng chờ một phút rồi thử lại.')
       } else {

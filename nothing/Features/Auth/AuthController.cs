@@ -82,6 +82,12 @@ public class AuthController : ControllerBase
 
         if (!result.Succeeded)
         {
+            if (result.IsNotAllowed)
+            {
+                return Problem(statusCode: StatusCodes.Status403Forbidden,
+                    title: "Email chưa được xác nhận. Hãy xác nhận email rồi thử lại.");
+            }
+
             return Problem(statusCode: StatusCodes.Status401Unauthorized,
                 title: "Không thể đăng nhập với thông tin đã cung cấp.");
         }

@@ -263,3 +263,7 @@ React có `/forgot-password`, link từ login và `/reset-password` đọc email
 ## Tiến độ Email Confirmation — bài60
 
 React có `/confirm-email`: đăng ký chuyển tới trang này, không có code thì gửi lại email, có code thì tự xác nhận. Query token được đưa vào state rồi xóa khỏi URL; thông báo resend vẫn generic. Frontend đạt 62 test, lint/build; login chưa yêu cầu EmailConfirmed.
+
+## Tiến độ Email Confirmation — bài61
+
+Login hỗ trợ rollout `Auth:RequireConfirmedEmail`: mặc định false để không khóa tài khoản cũ, khi bật thì Identity từ chối account chưa xác nhận và API trả 403 để React hướng dẫn gửi lại email. Khi triển khai production cần xác nhận dữ liệu cũ hoặc có kế hoạch hỗ trợ trước khi bật cờ.
