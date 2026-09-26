@@ -10,4 +10,7 @@ public class UpdatePaymentStatusRequest
     [EnumDataType(typeof(PaymentStatus))]
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public PaymentStatus? Status { get; set; }
+
+    [StringLength(300, MinimumLength = 5)]
+    public string? Reason { get; set; }
 }

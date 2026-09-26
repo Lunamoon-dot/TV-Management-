@@ -29,13 +29,16 @@ export interface OrderResponse {
   paymentMethod: PaymentMethod
   paymentStatus: PaymentStatus
   paidAt: string | null
+  paymentReference: string | null
+  paymentSubmittedAt: string | null
+  paymentRejectedReason: string | null
   totalAmount: number
   items: OrderItemResponse[]
 }
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Completed' | 'Cancelled'
 export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer'
-export type PaymentStatus = 'Unpaid' | 'Paid'
+export type PaymentStatus = 'Unpaid' | 'PendingReview' | 'Paid' | 'Rejected'
 
 export interface OrderPageResponse {
   items: OrderResponse[]

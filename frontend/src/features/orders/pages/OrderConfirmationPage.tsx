@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { isAuthenticationError, isNotFoundError, isValidationError } from '../../../shared/api/errors'
-import { cancelOrder, getOrderById } from '../api/orders'
+import { cancelOrder, getOrderById, submitPayment } from '../api/orders'
 import type { OrderResponse } from '../types'
 import { OrderStatusBadge } from '../components/OrderStatusBadge'
 import { PaymentSummary } from '../components/PaymentSummary'
@@ -31,6 +31,9 @@ function OrderDetails({ id }: { id: number }) {
   const [cancelError, setCancelError] = useState('')
   const [showCancelForm, setShowCancelForm] = useState(false)
   const [cancelReason, setCancelReason] = useState('')
+  const [paymentReference, setPaymentReference] = useState('')
+  const [paymentMessage, setPaymentMessage] = useState('')
+  const [submittingPayment, setSubmittingPayment] = useState(false)
 
   async function cancel(order: OrderResponse) {
     if (cancelling) return
@@ -50,6 +53,25 @@ function OrderDetails({ id }: { id: number }) {
       else setCancelError('Chưa hủy được đơn hàng. Hãy thử lại.')
     } finally {
       setCancelling(false)
+    }
+  }
+
+  async function submitTransfer(order: OrderResponse) {
+    if (submittingPayment || paymentReference.trim().length < 3) {
+      setPaymentMessage('Nhập mã giao dịch dài ít nhất 3 ký tự.')
+      return
+    }
+    setSubmittingPayment(true)
+    setPaymentMessage('')
+    try {
+      await submitPayment(order.id, paymentReference)
+      setState({ status: 'success', order: { ...order, paymentStatus: 'PendingReview', paymentReference: paymentReference.trim(), paymentSubmittedAt: new Date().toISOString() } })
+      setPaymentMessage('Đã gửi thông tin chuyển khoản. Admin sẽ kiểm tra và xác nhận.')
+      setPaymentReference('')
+    } catch {
+      setPaymentMessage('Chưa gửi được thông tin chuyển khoản. Hãy thử lại.')
+    } finally {
+      setSubmittingPayment(false)
     }
   }
 
@@ -107,6 +129,14 @@ function OrderDetails({ id }: { id: number }) {
         <div><dt className="font-semibold">Thanh toán</dt><dd className="mt-1 text-[#52645e]"><PaymentSummary method={order.paymentMethod} status={order.paymentStatus} /></dd></div>
         {order.paidAt && <div><dt className="font-semibold">Xác nhận lúc</dt><dd className="mt-1 text-[#52645e]">{dateTime.format(new Date(order.paidAt))}</dd></div>}
       </dl>
+      {order.paymentMethod === 'BankTransfer' && order.paymentStatus !== 'Paid' && order.paymentStatus !== 'PendingReview' && <form className="mt-6 border-t border-[#e1e5e2] pt-5" onSubmit={event => { event.preventDefault(); void submitTransfer(order) }}>
+        <h3 className="font-semibold">Xác nhận đã chuyển khoản</h3>
+        <p className="mt-2 text-sm text-[#52645e]">Nhập mã giao dịch để Admin đối chiếu. Không tự chuyển trạng thái thành đã thanh toán.</p>
+        <input aria-label="Mã giao dịch" value={paymentReference} disabled={submittingPayment} onChange={event => setPaymentReference(event.target.value)} className="mt-3 w-full rounded-md border border-[#cbd3cd] px-3 py-2" />
+        <button type="submit" disabled={submittingPayment} className="mt-3 cursor-pointer rounded-md bg-[#254c40] px-4 py-2 text-white disabled:opacity-60">{submittingPayment ? 'Đang gửi…' : 'Gửi xác nhận chuyển khoản'}</button>
+        {paymentMessage && <p role="status" className="mt-3 text-sm text-[#52645e]">{paymentMessage}</p>}
+      </form>}
+      {order.paymentRejectedReason && <p className="mt-4 text-sm text-red-800">Lý do từ chối: {order.paymentRejectedReason}</p>}
     </section>
     <section className="mt-8 rounded-lg border border-[#d9dfda] bg-white p-6">
       <h2 className="text-xl font-semibold">Chi tiết đơn hàng</h2>

@@ -20,6 +20,9 @@ public class AdminOrderResponse
 
     public DateTimeOffset? PaidAt { get; set; }
     public string? PaymentConfirmedByEmail { get; set; }
+    public string? PaymentReference { get; set; }
+    public DateTimeOffset? PaymentSubmittedAt { get; set; }
+    public string? PaymentRejectedReason { get; set; }
 
     public decimal TotalAmount { get; set; }
     public int ItemCount { get; set; }

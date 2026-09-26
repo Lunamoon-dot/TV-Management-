@@ -26,3 +26,9 @@ export async function cancelOrder(id: number, reason: string): Promise<void> {
     headers: await getCsrfHeaders(),
   })
 }
+
+export async function submitPayment(id: number, paymentReference: string): Promise<void> {
+  await http.post(`/orders/${id}/payment-submission`, { paymentReference }, {
+    headers: await getCsrfHeaders(),
+  })
+}

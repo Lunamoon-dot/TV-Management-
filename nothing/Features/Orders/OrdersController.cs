@@ -60,6 +60,37 @@ public class OrdersController : ControllerBase
         };
     }
 
+    [ValidateAntiForgeryToken]
+    [HttpPost("{id:int}/payment-submission")]
+    public async Task<IActionResult> SubmitPayment(
+        int id,
+        SubmitPaymentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user?.Email is null) return Unauthorized();
+        var order = await _context.Orders.FirstOrDefaultAsync(
+            order => order.Id == id && order.CustomerId == user.Id, cancellationToken);
+        if (order is null) return NotFound();
+        if (order.PaymentMethod != PaymentMethod.BankTransfer || order.Status == OrderStatus.Cancelled)
+        {
+            ModelState.AddModelError(nameof(request.PaymentReference), "Only active bank transfer orders accept payment submissions.");
+            return ValidationProblem(ModelState);
+        }
+        if (order.PaymentStatus == PaymentStatus.Paid || order.PaymentStatus == PaymentStatus.PendingReview)
+        {
+            ModelState.AddModelError(nameof(request.PaymentReference), "This order already has a payment submission.");
+            return ValidationProblem(ModelState);
+        }
+
+        order.PaymentStatus = PaymentStatus.PendingReview;
+        order.PaymentReference = request.PaymentReference!.Trim();
+        order.PaymentSubmittedAt = DateTimeOffset.UtcNow;
+        order.PaymentRejectedReason = null;
+        await _context.SaveChangesAsync(cancellationToken);
+        return NoContent();
+    }
+
     private IActionResult InvalidCancellation()
     {
         ModelState.AddModelError(nameof(Order.Status), "Only Pending orders can be cancelled by the customer.");
@@ -94,6 +125,9 @@ public class OrdersController : ControllerBase
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
                 PaidAt = order.PaidAt,
+                PaymentReference = order.PaymentReference,
+                PaymentSubmittedAt = order.PaymentSubmittedAt,
+                PaymentRejectedReason = order.PaymentRejectedReason,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -139,6 +173,9 @@ public class OrdersController : ControllerBase
                 PaymentMethod = order.PaymentMethod,
                 PaymentStatus = order.PaymentStatus,
                 PaidAt = order.PaidAt,
+                PaymentReference = order.PaymentReference,
+                PaymentSubmittedAt = order.PaymentSubmittedAt,
+                PaymentRejectedReason = order.PaymentRejectedReason,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -300,6 +337,9 @@ public class OrdersController : ControllerBase
             PaymentMethod = order.PaymentMethod,
             PaymentStatus = order.PaymentStatus,
             PaidAt = order.PaidAt,
+            PaymentReference = order.PaymentReference,
+            PaymentSubmittedAt = order.PaymentSubmittedAt,
+            PaymentRejectedReason = order.PaymentRejectedReason,
             TotalAmount = order.TotalAmount,
             Items = order.Items.Select(item => new OrderItemResponse
             {

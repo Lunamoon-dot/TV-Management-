@@ -7,7 +7,9 @@ const methodLabels: Record<PaymentMethod, string> = {
 
 const statusLabels: Record<PaymentStatus, string> = {
   Unpaid: 'Chưa thanh toán',
+  PendingReview: 'Đang chờ xác nhận',
   Paid: 'Đã thanh toán',
+  Rejected: 'Bị từ chối',
 }
 
 export function PaymentSummary({ method, status }: { method: PaymentMethod; status: PaymentStatus }) {

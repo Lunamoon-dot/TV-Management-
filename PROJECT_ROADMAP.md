@@ -271,3 +271,7 @@ Login hỗ trợ rollout `Auth:RequireConfirmedEmail`: mặc định false để
 ## Tiến độ Email Provider — bài62
 
 Production có `SmtpEmailSender` dùng chung cho xác nhận email và reset mật khẩu; cấu hình qua `PublicOrigin` và `Smtp__*` environment variables, còn Development giữ pickup file. Chưa chọn nhà cung cấp SMTP cụ thể hoặc hoàn thiện SPF/DKIM/DMARC và monitoring gửi mail.
+
+## Tiến độ Payment Confirmation — bài63
+
+Customer gửi mã giao dịch cho đơn BankTransfer, backend chuyển sang `PendingReview`; Admin có thể duyệt `Paid` hoặc từ chối với lý do. Thêm audit fields và migration, UI Customer hiển thị form gửi mã. Chưa tích hợp cổng thanh toán/webhook hoặc UI duyệt payment riêng trong Admin.

@@ -61,6 +61,9 @@ public class AdminOrdersController : ControllerBase
                 PaymentStatus = order.PaymentStatus,
                 PaidAt = order.PaidAt,
                 PaymentConfirmedByEmail = order.PaymentConfirmedByEmail,
+                PaymentReference = order.PaymentReference,
+                PaymentSubmittedAt = order.PaymentSubmittedAt,
+                PaymentRejectedReason = order.PaymentRejectedReason,
                 TotalAmount = order.TotalAmount,
                 ItemCount = order.Items.Count
             })
@@ -96,6 +99,9 @@ public class AdminOrdersController : ControllerBase
                 PaymentStatus = order.PaymentStatus,
                 PaidAt = order.PaidAt,
                 PaymentConfirmedByEmail = order.PaymentConfirmedByEmail,
+                PaymentReference = order.PaymentReference,
+                PaymentSubmittedAt = order.PaymentSubmittedAt,
+                PaymentRejectedReason = order.PaymentRejectedReason,
                 TotalAmount = order.TotalAmount,
                 Items = order.Items
                     .OrderBy(item => item.Id)
@@ -185,9 +191,15 @@ public class AdminOrdersController : ControllerBase
             .FirstOrDefaultAsync(order => order.Id == id, cancellationToken);
         if (order is null) return NotFound();
 
-        if (request.Status != PaymentStatus.Paid)
+        if (request.Status is not (PaymentStatus.Paid or PaymentStatus.Rejected))
         {
-            ModelState.AddModelError(nameof(request.Status), "Payment can only be marked as Paid.");
+            ModelState.AddModelError(nameof(request.Status), "Payment can only be marked as Paid or Rejected.");
+            return ValidationProblem(ModelState);
+        }
+
+        if (request.Status == PaymentStatus.Rejected && string.IsNullOrWhiteSpace(request.Reason))
+        {
+            ModelState.AddModelError(nameof(request.Reason), "A rejection reason is required.");
             return ValidationProblem(ModelState);
         }
 
@@ -197,14 +209,15 @@ public class AdminOrdersController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        if (order.PaymentStatus == PaymentStatus.Paid) return NoContent();
+        if (order.PaymentStatus == request.Status) return NoContent();
 
         var admin = await _userManager.GetUserAsync(User);
         if (admin is null) return Unauthorized();
 
-        order.PaymentStatus = PaymentStatus.Paid;
-        order.PaidAt = DateTimeOffset.UtcNow;
+        order.PaymentStatus = request.Status.Value;
+        order.PaidAt = request.Status == PaymentStatus.Paid ? DateTimeOffset.UtcNow : null;
         order.PaymentConfirmedByEmail = admin.Email;
+        order.PaymentRejectedReason = request.Status == PaymentStatus.Rejected ? request.Reason!.Trim() : null;
         await _context.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Marked order {OrderId} payment as paid", order.Id);
         return NoContent();
