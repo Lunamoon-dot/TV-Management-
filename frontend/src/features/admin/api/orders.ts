@@ -11,6 +11,9 @@ export interface AdminOrderResponse {
   paymentStatus: PaymentStatus
   paidAt: string | null
   paymentConfirmedByEmail: string | null
+  paymentReference: string | null
+  paymentSubmittedAt: string | null
+  paymentRejectedReason: string | null
   totalAmount: number
   itemCount: number
 }
@@ -73,8 +76,8 @@ export async function updateOrderStatus(id: number, status: OrderStatus, reason?
   await http.put(`/admin/orders/${id}/status`, { status, reason }, { headers: await getCsrfHeaders() })
 }
 
-export async function updatePaymentStatus(id: number, status: PaymentStatus): Promise<void> {
-  await http.put(`/admin/orders/${id}/payment-status`, { status }, { headers: await getCsrfHeaders() })
+export async function updatePaymentStatus(id: number, status: PaymentStatus, reason?: string): Promise<void> {
+  await http.put(`/admin/orders/${id}/payment-status`, { status, reason }, { headers: await getCsrfHeaders() })
 }
 
 export async function createOrderNote(id: number, content: string): Promise<OrderNoteResponse> {

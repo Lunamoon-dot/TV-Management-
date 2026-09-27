@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router'
 import { isNotFoundError } from '../../../shared/api/errors'
 import { OrderStatusBadge } from '../../orders/components/OrderStatusBadge'
 import { PaymentSummary } from '../../orders/components/PaymentSummary'
-import { createOrderNote, getAdminOrderById, type AdminOrderDetailsResponse } from '../api/orders'
+import { createOrderNote, getAdminOrderById, updatePaymentStatus, type AdminOrderDetailsResponse } from '../api/orders'
 import { orderNoteSchema } from '../schemas/order-note'
 
 const money = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
@@ -29,6 +29,36 @@ export function AdminOrderDetailsPage() {
   const [noteContent, setNoteContent] = useState('')
   const [noteError, setNoteError] = useState('')
   const [savingNote, setSavingNote] = useState(false)
+  const [paymentReason, setPaymentReason] = useState('')
+  const [paymentError, setPaymentError] = useState('')
+  const [updatingPayment, setUpdatingPayment] = useState(false)
+
+  async function setPayment(status: 'Paid' | 'Rejected') {
+    if (updatingPayment) return
+    if (status === 'Rejected' && paymentReason.trim().length < 5) {
+      setPaymentError('Lý do từ chối phải có ít nhất 5 ký tự.')
+      return
+    }
+    setUpdatingPayment(true)
+    setPaymentError('')
+    try {
+      await updatePaymentStatus(orderId, status, status === 'Rejected' ? paymentReason : undefined)
+      setState(current => current.status === 'success' ? {
+        status: 'success',
+        order: {
+          ...current.order,
+          paymentStatus: status,
+          paidAt: status === 'Paid' ? new Date().toISOString() : null,
+          paymentRejectedReason: status === 'Rejected' ? paymentReason.trim() : null,
+        },
+      } : current)
+      setPaymentReason('')
+    } catch {
+      setPaymentError('Chưa cập nhật được trạng thái thanh toán.')
+    } finally {
+      setUpdatingPayment(false)
+    }
+  }
 
   async function addNote() {
     const parsed = orderNoteSchema.safeParse({ content: noteContent })
@@ -85,7 +115,15 @@ export function AdminOrderDetailsPage() {
       <section className="rounded-lg border border-[#d2d9d4] bg-white p-6">
         <h2 className="text-xl font-semibold">Thanh toán</h2>
         <p className="mt-4"><PaymentSummary method={order.paymentMethod} status={order.paymentStatus} /></p>
+        {order.paymentReference && <p className="mt-3 text-sm text-[#52645e]">Mã giao dịch: {order.paymentReference}</p>}
+        {order.paymentSubmittedAt && <p className="mt-1 text-sm text-[#52645e]">Gửi lúc: {dateTime.format(new Date(order.paymentSubmittedAt))}</p>}
         {order.paidAt && <p className="mt-3 text-sm text-[#52645e]">Xác nhận {dateTime.format(new Date(order.paidAt))}<br />bởi {order.paymentConfirmedByEmail}</p>}
+        {(order.paymentStatus === 'PendingReview' || order.paymentStatus === 'Unpaid' || order.paymentStatus === 'Rejected') && order.paymentMethod === 'BankTransfer' && <div className="mt-5 border-t border-[#e1e5e2] pt-4">
+          <label htmlFor="payment-reason" className="text-sm font-semibold">Lý do từ chối (nếu cần)</label>
+          <textarea id="payment-reason" rows={2} value={paymentReason} disabled={updatingPayment} onChange={event => setPaymentReason(event.target.value)} className="mt-2 w-full rounded-md border border-[#cbd3cd] p-2" />
+          <div className="mt-3 flex gap-3"><button type="button" disabled={updatingPayment} onClick={() => void setPayment('Paid')} className="cursor-pointer rounded-md bg-[#254c40] px-3 py-2 text-sm text-white disabled:opacity-60">Duyệt đã thanh toán</button><button type="button" disabled={updatingPayment} onClick={() => void setPayment('Rejected')} className="cursor-pointer rounded-md border border-red-800 px-3 py-2 text-sm text-red-800 disabled:opacity-60">Từ chối</button></div>
+          {paymentError && <p role="alert" className="mt-3 text-sm text-red-800">{paymentError}</p>}
+        </div>}
       </section>
     </div>
 

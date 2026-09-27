@@ -275,3 +275,7 @@ Production có `SmtpEmailSender` dùng chung cho xác nhận email và reset m�
 ## Tiến độ Payment Confirmation — bài63
 
 Customer gửi mã giao dịch cho đơn BankTransfer, backend chuyển sang `PendingReview`; Admin có thể duyệt `Paid` hoặc từ chối với lý do. Thêm audit fields và migration, UI Customer hiển thị form gửi mã. Chưa tích hợp cổng thanh toán/webhook hoặc UI duyệt payment riêng trong Admin.
+
+## Tiến độ Payment Confirmation — bài64
+
+Admin Order Details hiển thị mã giao dịch và có nút duyệt/từ chối; từ chối bắt buộc lý do. React cập nhật state sau mutation nhưng backend vẫn là nguồn sự thật. Chưa tích hợp MoMo webhook.
