@@ -287,3 +287,7 @@ Gộp năm bước nền tảng: thêm phương thức MoMo, contract IPN, HMAC-
 ## Tiến độ Product Reviews — bài66
 
 Customer xem và gửi review trên trang sản phẩm; backend chỉ cho người đã mua sản phẩm, lấy identity từ cookie và chặn review trùng bằng unique index. Frontend có Zod form và hiển thị rating/comment. Chưa có sửa/xóa review hoặc moderation Admin.
+
+## Tiến độ Product Reviews — bài67
+
+Review có endpoint sửa/xóa theo ownership và Admin có thể ẩn/hiện bằng role + CSRF. Review ẩn được giữ lại trong database nhưng bị loại khỏi API public. Chưa có trang quản trị review riêng và UI sửa/xóa Customer.
