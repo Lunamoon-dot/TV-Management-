@@ -291,3 +291,7 @@ Customer xem và gửi review trên trang sản phẩm; backend chỉ cho ngư�
 ## Tiến độ Product Reviews — bài67
 
 Review có endpoint sửa/xóa theo ownership và Admin có thể ẩn/hiện bằng role + CSRF. Review ẩn được giữ lại trong database nhưng bị loại khỏi API public. Chưa có trang quản trị review riêng và UI sửa/xóa Customer.
+
+## Tiến độ Wishlist — bài68
+
+Thêm bảng WishlistItems và API GET/POST/DELETE theo Customer cookie, unique index chống thêm trùng và migration SQL. Chưa có UI wishlist React.

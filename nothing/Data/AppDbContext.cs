@@ -23,6 +23,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<OrderNote> OrderNotes { get; set; }
     public DbSet<ProductReview> ProductReviews { get; set; }
+    public DbSet<WishlistItem> WishlistItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -79,6 +80,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<ProductReview>().HasOne(review => review.Customer).WithMany().HasForeignKey(review => review.CustomerId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<ProductReview>().Property(review => review.Comment).HasMaxLength(1000).IsRequired();
         modelBuilder.Entity<ProductReview>().HasIndex(review => new { review.ProductId, review.CustomerId }).IsUnique();
+        modelBuilder.Entity<WishlistItem>().HasOne(item => item.Customer).WithMany().HasForeignKey(item => item.CustomerId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<WishlistItem>().HasOne(item => item.Product).WithMany().HasForeignKey(item => item.ProductId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<WishlistItem>().HasIndex(item => new { item.CustomerId, item.ProductId }).IsUnique();
 
         modelBuilder.Entity<Order>()
             .HasOne(order => order.Customer)
