@@ -22,6 +22,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
 
     public DbSet<OrderNote> OrderNotes { get; set; }
+    public DbSet<ProductReview> ProductReviews { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -73,6 +74,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<Product>()
             .Property(product => product.RowVersion)
             .IsRowVersion();
+
+        modelBuilder.Entity<ProductReview>().HasOne(review => review.Product).WithMany().HasForeignKey(review => review.ProductId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProductReview>().HasOne(review => review.Customer).WithMany().HasForeignKey(review => review.CustomerId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<ProductReview>().Property(review => review.Comment).HasMaxLength(1000).IsRequired();
+        modelBuilder.Entity<ProductReview>().HasIndex(review => new { review.ProductId, review.CustomerId }).IsUnique();
 
         modelBuilder.Entity<Order>()
             .HasOne(order => order.Customer)

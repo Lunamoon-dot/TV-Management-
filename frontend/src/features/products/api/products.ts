@@ -15,6 +15,16 @@ export async function getProductById(id: number, signal: AbortSignal): Promise<P
   return response.data
 }
 
+export interface ProductReview { id: number; rating: number; comment: string; createdAt: string; customerName: string }
+
+export async function getProductReviews(productId: number, signal: AbortSignal): Promise<ProductReview[]> {
+  return (await http.get<ProductReview[]>(`/products/${productId}/reviews`, { signal })).data
+}
+
+export async function createProductReview(productId: number, request: { rating: number; comment: string }): Promise<ProductReview> {
+  return (await http.post<ProductReview>(`/products/${productId}/reviews`, request, { headers: await getCsrfHeaders() })).data
+}
+
 export async function createProduct(request: CreateProductRequest): Promise<ProductResponse> {
   const response = await http.post<ProductResponse>('/products', request, { headers: await getCsrfHeaders() })
   return response.data

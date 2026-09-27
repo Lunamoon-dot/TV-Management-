@@ -283,3 +283,7 @@ Admin Order Details hiển thị mã giao dịch và có nút duyệt/từ chố
 ## Tiến độ MoMo Payment — bài65
 
 Gộp năm bước nền tảng: thêm phương thức MoMo, contract IPN, HMAC-SHA256 signature verification, kiểm tra order/amount và idempotent callback. Chưa gọi API tạo payment URL sandbox; bước tiếp theo sẽ thêm transaction/request ID và redirect chỉ để UX, còn IPN là nguồn sự thật.
+
+## Tiến độ Product Reviews — bài66
+
+Customer xem và gửi review trên trang sản phẩm; backend chỉ cho người đã mua sản phẩm, lấy identity từ cookie và chặn review trùng bằng unique index. Frontend có Zod form và hiển thị rating/comment. Chưa có sửa/xóa review hoặc moderation Admin.
