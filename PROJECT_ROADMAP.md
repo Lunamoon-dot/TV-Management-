@@ -279,3 +279,7 @@ Customer gửi mã giao dịch cho đơn BankTransfer, backend chuyển sang `Pe
 ## Tiến độ Payment Confirmation — bài64
 
 Admin Order Details hiển thị mã giao dịch và có nút duyệt/từ chối; từ chối bắt buộc lý do. React cập nhật state sau mutation nhưng backend vẫn là nguồn sự thật. Chưa tích hợp MoMo webhook.
+
+## Tiến độ MoMo Payment — bài65
+
+Gộp năm bước nền tảng: thêm phương thức MoMo, contract IPN, HMAC-SHA256 signature verification, kiểm tra order/amount và idempotent callback. Chưa gọi API tạo payment URL sandbox; bước tiếp theo sẽ thêm transaction/request ID và redirect chỉ để UX, còn IPN là nguồn sự thật.

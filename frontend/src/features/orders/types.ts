@@ -37,7 +37,7 @@ export interface OrderResponse {
 }
 
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Completed' | 'Cancelled'
-export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer'
+export type PaymentMethod = 'CashOnDelivery' | 'BankTransfer' | 'Momo'
 export type PaymentStatus = 'Unpaid' | 'PendingReview' | 'Paid' | 'Rejected'
 
 export interface OrderPageResponse {

@@ -11,7 +11,7 @@ export const checkoutSchema = z.object({
   shippingAddress: z.string().trim()
     .min(10, 'Địa chỉ giao hàng cần ít nhất 10 ký tự.')
     .max(300, 'Địa chỉ giao hàng tối đa 300 ký tự.'),
-  paymentMethod: z.enum(['CashOnDelivery', 'BankTransfer'], { error: 'Vui lòng chọn phương thức thanh toán.' }),
+  paymentMethod: z.enum(['CashOnDelivery', 'BankTransfer', 'Momo'], { error: 'Vui lòng chọn phương thức thanh toán.' }),
 })
 
 export type CheckoutFormInput = z.input<typeof checkoutSchema>

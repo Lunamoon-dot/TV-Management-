@@ -7,6 +7,7 @@ using nothing.Infrastructure;
 using nothing.Services;
 using nothing.Features.Orders;
 using nothing.Features.Auth;
+using nothing.Features.Payments;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderCancellationService>();
 builder.Services.AddScoped<EmailConfirmationService>();
+builder.Services.AddSingleton<MomoSignatureService>();
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddSingleton<IPasswordResetEmailSender, DevelopmentPasswordResetEmailSender>();

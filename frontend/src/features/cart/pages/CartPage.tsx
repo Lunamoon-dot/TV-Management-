@@ -171,8 +171,10 @@ export function CartPage() {
             className="mt-2 w-full rounded-md border border-[#cbd3cd] bg-white px-3 py-2">
             <option value="CashOnDelivery">Thanh toán khi nhận hàng</option>
             <option value="BankTransfer">Chuyển khoản ngân hàng</option>
+            <option value="Momo">MoMo</option>
           </select>
-          {checkoutDetails.paymentMethod === 'BankTransfer' && <p className="mt-2 text-sm text-[#52645e]">Thông tin chuyển khoản sẽ được bổ sung ở bài thanh toán tiếp theo.</p>}
+          {checkoutDetails.paymentMethod === 'BankTransfer' && <p className="mt-2 text-sm text-[#52645e]">Bạn sẽ nhập mã giao dịch sau khi chuyển khoản.</p>}
+          {checkoutDetails.paymentMethod === 'Momo' && <p className="mt-2 text-sm text-[#52645e]">MoMo sandbox sẽ được nối ở bước khởi tạo payment URL.</p>}
 
           <button type="submit" disabled={busy || session.status === 'loading'}
             className="mt-6 w-full cursor-pointer rounded-md bg-[#254c40] px-6 py-3 text-white disabled:cursor-wait disabled:opacity-60">

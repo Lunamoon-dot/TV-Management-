@@ -3,6 +3,7 @@ import type { PaymentMethod, PaymentStatus } from '../types'
 const methodLabels: Record<PaymentMethod, string> = {
   CashOnDelivery: 'Thanh toán khi nhận hàng',
   BankTransfer: 'Chuyển khoản ngân hàng',
+  Momo: 'MoMo',
 }
 
 const statusLabels: Record<PaymentStatus, string> = {
