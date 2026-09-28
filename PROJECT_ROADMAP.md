@@ -295,3 +295,7 @@ Review có endpoint sửa/xóa theo ownership và Admin có thể ẩn/hiện b�
 ## Tiến độ Wishlist — bài68
 
 Thêm bảng WishlistItems và API GET/POST/DELETE theo Customer cookie, unique index chống thêm trùng và migration SQL. Chưa có UI wishlist React.
+
+## Tiến độ Wishlist — bài69
+
+React có `/wishlist`, link navbar, danh sách yêu thích và nút thêm/bỏ ở product detail. Frontend checks vẫn pass; chưa có sort/filter catalog nâng cao.

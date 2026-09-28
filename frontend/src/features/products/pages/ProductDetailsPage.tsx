@@ -5,6 +5,8 @@ import { reviewSchema } from '../schemas/review'
 import type { ProductResponse } from '../types'
 import { useCartStore } from '../../cart/stores/cart-store'
 import { isNotFoundError } from '../../../shared/api/errors'
+import { addToWishlist, getWishlist, removeFromWishlist } from '../../wishlist/api/wishlist'
+import { useAuthStore } from '../../auth/stores/auth-store'
 
 type DetailsState =
   | { status: 'loading' | 'not-found' | 'error' }
@@ -35,6 +37,9 @@ function ProductDetails({ id }: { id: number }) {
   const [reviewMessage, setReviewMessage] = useState('')
   const [savingReview, setSavingReview] = useState(false)
   const addProduct = useCartStore(state => state.addProduct)
+  const session = useAuthStore(state => state.session)
+  const [wishlisted, setWishlisted] = useState(false)
+  const [wishlistBusy, setWishlistBusy] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -48,6 +53,20 @@ function ProductDetails({ id }: { id: number }) {
       })
     return () => controller.abort()
   }, [id, retry])
+
+  useEffect(() => {
+    if (session.status !== 'authenticated') return
+    const controller = new AbortController()
+    getWishlist(controller.signal).then(items => setWishlisted(items.some(item => item.id === id))).catch(() => undefined)
+    return () => controller.abort()
+  }, [id, session.status])
+
+  async function toggleWishlist() {
+    if (wishlistBusy) return
+    setWishlistBusy(true)
+    try { if (wishlisted) await removeFromWishlist(id); else await addToWishlist(id); setWishlisted(value => !value) }
+    finally { setWishlistBusy(false) }
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -92,6 +111,7 @@ function ProductDetails({ id }: { id: number }) {
       onClick={() => addProduct(product)}>
       Thêm vào giỏ
     </button>
+    {session.status === 'authenticated' && <button type="button" disabled={wishlistBusy} onClick={() => void toggleWishlist()} className="ml-3 cursor-pointer rounded-md border border-[#254c40] px-6 py-3 text-[#254c40] disabled:opacity-60">{wishlisted ? 'Bỏ yêu thích' : 'Yêu thích'}</button>}
     <dl className="mt-8 grid grid-cols-[auto_1fr] gap-x-8 gap-y-3 text-[#52645e]">
       <dt>Mã sản phẩm</dt><dd>#{product.id}</dd>
       <dt>Hãng</dt><dd>{product.brand}</dd>

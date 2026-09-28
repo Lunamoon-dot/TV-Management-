@@ -21,6 +21,7 @@ import { ProfilePage } from '../features/account/pages/ProfilePage'
 import { ForgotPasswordPage } from '../features/auth/pages/ForgotPasswordPage'
 import { ResetPasswordPage } from '../features/auth/pages/ResetPasswordPage'
 import { EmailConfirmationPage } from '../features/auth/pages/EmailConfirmationPage'
+import { WishlistPage } from '../features/wishlist/pages/WishlistPage'
 
 export default function App() {
   const refresh = useAuthStore(state => state.refresh)
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/orders" element={<RequireAuthenticated><OrderHistoryPage /></RequireAuthenticated>} />
         <Route path="/orders/:id" element={<RequireAuthenticated><OrderConfirmationPage /></RequireAuthenticated>} />
         <Route path="/account/profile" element={<RequireAuthenticated><ProfilePage /></RequireAuthenticated>} />
+        <Route path="/wishlist" element={<RequireAuthenticated><WishlistPage /></RequireAuthenticated>} />
         <Route path="/products/:id" element={<ProductDetailsPage />} />
         <Route path="*" element={<main className="mx-auto max-w-6xl px-6 py-16">
           <h1 className="mb-5 text-3xl font-bold">Trang không tồn tại</h1>

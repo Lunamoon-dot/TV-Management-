@@ -24,6 +24,7 @@ export function AccountNav() {
       </>}
       {session.status === 'error' && <button type="button" className="cursor-pointer underline" onClick={() => void refresh()}>Không kiểm tra được đăng nhập · Thử lại</button>}
       {session.status === 'authenticated' && <>
+        <Link to="/wishlist" className="underline">Yêu thích</Link>
         <Link to="/orders" className="underline">Đơn hàng</Link>
         {isAdmin(session.user) && <Link to="/admin" className="underline">Khu quản trị</Link>}
         <Link to="/account/profile" className="break-all underline">{session.user.email}</Link>
