@@ -15,4 +15,7 @@ public class ProductQueryRequest
 
     [Range(1, 100)]
     public int PageSize { get; set; } = 20;
+
+    [RegularExpression("^(relevance|priceAsc|priceDesc|newest)$")]
+    public string Sort { get; set; } = "relevance";
 }

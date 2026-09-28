@@ -299,3 +299,7 @@ Thêm bảng WishlistItems và API GET/POST/DELETE theo Customer cookie, unique 
 ## Tiến độ Wishlist — bài69
 
 React có `/wishlist`, link navbar, danh sách yêu thích và nút thêm/bỏ ở product detail. Frontend checks vẫn pass; chưa có sort/filter catalog nâng cao.
+
+## Tiến độ Catalog — bài70
+
+Catalog hỗ trợ sort mặc định, giá tăng, giá giảm và mới nhất; backend sort trước phân trang, React giữ lựa chọn trong Zustand. Frontend đạt 62 test, lint/build.

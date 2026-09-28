@@ -13,6 +13,8 @@ export function ProductsPage() {
   const searchProducts = useProductStore(state => state.searchProducts)
   const brandId = useProductStore(state => state.brandId)
   const filterByBrand = useProductStore(state => state.filterByBrand)
+  const sort = useProductStore(state => state.sort)
+  const setSort = useProductStore(state => state.setSort)
   const [draftSearch, setDraftSearch] = useState(search)
   const loading = result.status === 'idle' || result.status === 'loading'
 
@@ -50,6 +52,7 @@ export function ProductsPage() {
         }}>Xóa tìm kiếm</button>
       </form>
       <BrandFilter value={brandId} onChange={value => void filterByBrand(value)} />
+      <label className="mt-5 block text-sm font-medium" htmlFor="product-sort">Sắp xếp<select id="product-sort" value={sort} onChange={event => void setSort(event.target.value)} className="ml-3 rounded-md border border-[#cbd3cd] bg-white px-3 py-2"><option value="relevance">Mặc định</option><option value="priceAsc">Giá tăng dần</option><option value="priceDesc">Giá giảm dần</option><option value="newest">Mới nhất</option></select></label>
       {loading && <p className="mt-7" role="status">Đang tải danh sách TV…</p>}
       {result.status === 'error' && <p className="mt-7 rounded-md border border-orange-200 bg-orange-50 p-5 text-orange-900" role="alert">{result.message}</p>}
       {result.status === 'success' && <>

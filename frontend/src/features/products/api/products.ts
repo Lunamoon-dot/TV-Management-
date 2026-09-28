@@ -2,9 +2,9 @@ import { http } from '../../../shared/api/http'
 import { getCsrfHeaders } from '../../../shared/api/csrf'
 import type { CreateProductRequest, UpdateProductRequest, ProductPageResponse, ProductResponse } from '../types'
 
-export async function getProducts(signal: AbortSignal, page: number, search: string, brandId?: number, pageSize = 2): Promise<ProductPageResponse> {
+export async function getProducts(signal: AbortSignal, page: number, search: string, brandId?: number, pageSize = 2, sort = 'relevance'): Promise<ProductPageResponse> {
   const response = await http.get<ProductPageResponse>('/products', {
-    params: { page, pageSize, search: search || undefined, brandId },
+    params: { page, pageSize, search: search || undefined, brandId, sort },
     signal,
   })
   return response.data

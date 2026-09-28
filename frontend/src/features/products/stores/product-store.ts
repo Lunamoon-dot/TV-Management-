@@ -13,6 +13,8 @@ interface ProductStore {
   requestedPage: number
   search: string
   brandId: number | undefined
+  sort: string
+  setSort: (sort: string) => Promise<void>
   filterByBrand: (brandId: number | undefined) => Promise<void>
   searchProducts: (search: string) => Promise<void>
   loadProducts: (page?: number) => Promise<void>
@@ -27,6 +29,8 @@ export const useProductStore = create<ProductStore>()((set, get) => {
     requestedPage: 1,
     search: '',
     brandId: undefined,
+    sort: 'relevance',
+    setSort: async (sort) => { set({ sort }); await get().loadProducts(1) },
     filterByBrand: async (brandId) => {
       set({ brandId })
       await get().loadProducts(1)
@@ -41,7 +45,7 @@ export const useProductStore = create<ProductStore>()((set, get) => {
       activeController = controller
       set({ result: { status: 'loading' }, requestedPage: page })
       try {
-        const data = await getProducts(controller.signal, page, get().search, get().brandId)
+        const data = await getProducts(controller.signal, page, get().search, get().brandId, 20, get().sort)
         if (!controller.signal.aborted) set({ result: { status: 'success', data } })
       } catch (error: unknown) {
         if (controller.signal.aborted) return

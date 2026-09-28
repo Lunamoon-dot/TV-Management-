@@ -31,9 +31,15 @@ public class ProductService
         }
 
         var totalCount = await query.CountAsync(cancellationToken);
+        query = request.Sort switch
+        {
+            "priceAsc" => query.OrderBy(product => product.Price),
+            "priceDesc" => query.OrderByDescending(product => product.Price),
+            "newest" => query.OrderByDescending(product => product.Id),
+            _ => query.OrderBy(product => product.Id)
+        };
 
         var products = await query
-            .OrderBy(product => product.Id)
             .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(product => new ProductResponse
