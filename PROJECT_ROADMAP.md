@@ -303,3 +303,7 @@ React có `/wishlist`, link navbar, danh sách yêu thích và nút thêm/bỏ �
 ## Tiến độ Catalog — bài70
 
 Catalog hỗ trợ sort mặc định, giá tăng, giá giảm và mới nhất; backend sort trước phân trang, React giữ lựa chọn trong Zustand. Frontend đạt 62 test, lint/build.
+
+## Tiến độ Inventory — bài71
+
+Admin có API low-stock với threshold và dashboard cảnh báo sản phẩm còn 0–5 chiếc. Checkout vẫn là nơi quyết định tồn kho cuối cùng trong transaction; chưa có email/notification tự động cho Admin.
